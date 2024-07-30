@@ -95,14 +95,14 @@ validate_population <- function(remove_COPD = 0, incidence_k = 1, savePlots = 0)
   message("\nBecause you have called me with remove_COPD=", remove_COPD, ", I am", c("NOT", "indeed")[remove_COPD + 1], "going to remove COPD-related mortality from my calculations")
   petoc()
 
-  # CanSim.052.0005<-read.csv(system.file ('extdata', 'CanSim.052.0005.csv', package = 'epicR'), header = T); #package ready
+  # USSim2024<-read.csv(system.file ('extdata', 'USSim2024.csv', package = 'epicR'), header = T); #package ready
   # reading
-  x <- aggregate(CanSim.052.0005[, "value"], by = list(CanSim.052.0005[, "year"]), FUN = sum)
+  x <- aggregate(USSim2024[, "value"], by = list(USSim2024[, "year"]), FUN = sum)
   x[, 2] <- x[, 2]/x[1, 2]
   x <- x[1:input$global_parameters$time_horizon, ]
   plot(x, type = "l", ylim = c(0.5, max(x[, 2] * 1.5)), xlab = "Year", ylab = "Relative population size")
   title(cex.main = 0.5, "Relative populaton size")
-  message("The plot I just drew is the expected (well, StatCan's predictions) relative population growth from 2015\n")
+  message("The plot I just drew is the expected (well, StatCan's predictions) relative population growth from 2022\n")
   petoc()
 
   if (remove_COPD) {
@@ -123,14 +123,14 @@ validate_population <- function(remove_COPD = 0, incidence_k = 1, savePlots = 0)
   legend("topright", c("Predicted", "Simulated"), lty = c(1, 1), col = c("black", "red"))
 
   message("And the black one is the observed (simulated) growth\n")
-   ######## pretty population growth curve
+  ######## pretty population growth curve
 
-  CanSim <- tibble::as_tibble(CanSim.052.0005)
-  CanSim <- tidyr::spread(CanSim, key = year, value = value)
-  CanSim <- CanSim[, 3:51]
-  CanSim <- colSums (CanSim)
+  USSim <- tibble::as_tibble(USSim2024)
+  USSim <- tidyr::spread(USSim, key = year, value = value)
+  USSim <- USSim[, 3:51]
+  USSim <- colSums (USSim)
 
-  df <- data.frame(Year = c(2015:(2015 + model_input$values$global_parameters$time_horizon-1)), Predicted = CanSim[1:model_input$values$global_parameters$time_horizon] * 1000, Simulated = rowSums(Cget_output_ex()$n_alive_by_ctime_sex)/ settings$n_base_agents * 18179400) #rescaling population. There are about 18.6 million Canadians above 40
+  df <- data.frame(Year = c(2015:(2015 + model_input$values$global_parameters$time_horizon-1)), Predicted = USSim[1:model_input$values$global_parameters$time_horizon] * 1000, Simulated = rowSums(Cget_output_ex()$n_alive_by_ctime_sex)/ settings$n_base_agents * 18179400) #rescaling population. There are about 18.6 million Canadians above 40
   message ("Here's simulated vs. predicted population table:")
   print(df)
   dfm <- reshape2::melt(df[,c('Year','Predicted','Simulated')], id.vars = 1)
@@ -152,13 +152,13 @@ validate_population <- function(remove_COPD = 0, incidence_k = 1, savePlots = 0)
 
 
   message("Also, the ratio of the expected to observed population in years 10 and 20 are ", sum(Cget_output_ex()$n_alive_by_ctime_sex[10,
-                                                                                                                                  ])/x[10, 2], " and ", sum(Cget_output_ex()$n_alive_by_ctime_sex[20, ])/x[20, 2])
+  ])/x[10, 2], " and ", sum(Cget_output_ex()$n_alive_by_ctime_sex[20, ])/x[20, 2])
   petoc()
 
   message("Now evaluating the population pyramid\n")
-  for (year in c(2015, 2025, 2034)) {
+  for (year in c(2022, 2025, 2035)) {
     message("The observed population pyramid in", year, "is just drawn\n")
-    x <- CanSim.052.0005[which(CanSim.052.0005[, "year"] == year & CanSim.052.0005[, "sex"] == "both"), "value"]
+    x <- USSim2024[which(USSim2024[, "year"] == year & USSim2024[, "sex"] == "both"), "value"]
     #x <- c(x, rep(0, 111 - length(x) - 40))
     #barplot(x,  names.arg=40:110, xlab = "Age")
     #title(cex.main = 0.5, paste("Predicted Pyramid - ", year))
@@ -177,13 +177,13 @@ validate_population <- function(remove_COPD = 0, incidence_k = 1, savePlots = 0)
     dfSimulated$population <- dfSimulated$population * (-1) / settings$n_base_agents * 18179400 #rescaling population. There are 18179400 Canadians above 40
 
     p <- ggplot (NULL, aes(x = age, y = population)) + theme_tufte(base_size=14, ticks=F) +
-         geom_bar (aes(fill = "Simulated"), data = dfSimulated, stat="identity", alpha = 0.5) +
-         geom_bar (aes(fill = "Predicted"), data = dfPredicted, stat="identity", alpha = 0.5) +
-         theme(axis.title=element_blank()) +
-         ggtitle(paste0("Simulated vs. Predicted Population Pyramid in ", year)) +
-         theme(legend.title=element_blank()) +
-         scale_y_continuous(name="Population", labels = scales::comma) +
-         scale_x_continuous(name="Age", labels = scales::comma)
+      geom_bar (aes(fill = "Simulated"), data = dfSimulated, stat="identity", alpha = 0.5) +
+      geom_bar (aes(fill = "Predicted"), data = dfPredicted, stat="identity", alpha = 0.5) +
+      theme(axis.title=element_blank()) +
+      ggtitle(paste0("Simulated vs. Predicted Population Pyramid in ", year)) +
+      theme(legend.title=element_blank()) +
+      scale_y_continuous(name="Population", labels = scales::comma) +
+      scale_x_continuous(name="Age", labels = scales::comma)
     if (savePlots) ggsave(paste0("Population ", year,".tiff"), plot = last_plot(), device = "tiff", dpi = 300)
 
     plot(p)
@@ -228,8 +228,8 @@ validate_smoking <- function(remove_COPD = 1, intercept_k = NULL) {
   message("Starting validation target 1: baseline prevalence of smokers.\n")
   petoc()
 
-  # CanSim.105.0501<-read.csv(paste(data_path,'/CanSim.105.0501.csv',sep=''),header=T) Included in the package as internal data
-  tab1 <- rbind(CanSim.105.0501[1:3, "value"], CanSim.105.0501[4:6, "value"])/100
+  # USSim2024<-read.csv(paste(data_path,'/USSim2024.csv',sep=''),header=T) Included in the package as internal data
+  tab1 <- rbind(USSim2024[1:3, "value"], USSim2024[4:6, "value"])/100
   message("This is the observed percentage of current smokers in 2014 (m,f)\n")
   barplot(tab1, beside = T, names.arg = c("40", "52", "65+"), ylim = c(0, 0.4), xlab = "Age group", ylab = "Prevalenc of smoking",
           col = c("black", "grey"))
@@ -494,29 +494,29 @@ validate_COPD <- function(incident_COPD_k = 1, return_CI = FALSE) # The incidenc
   dataF[, "gold3p"] <- (dataF[, "gold"] > 2) * 1
   dataF[, "year"] <- dataF[, "local_time"] + dataF[, "time_at_creation"]
 
-    res <- glm(data = dataF[which(dataF[, "female"] == 0), ], formula = copd ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
-    out$calib_prev_copd_reg_coeffs_male <- coefficients(res)
-    if (return_CI) {out$conf_prev_copd_reg_coeffs_male <- stats::confint(res, "year", level = 0.95)}
+  res <- glm(data = dataF[which(dataF[, "female"] == 0), ], formula = copd ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
+  out$calib_prev_copd_reg_coeffs_male <- coefficients(res)
+  if (return_CI) {out$conf_prev_copd_reg_coeffs_male <- stats::confint(res, "year", level = 0.95)}
 
-    res <- glm(data = dataF[which(dataF[, "female"] == 1), ], formula = copd ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
-    out$calib_prev_copd_reg_coeffs_female <- coefficients(res)
-    if (return_CI) {out$conf_prev_copd_reg_coeffs_female <- stats::confint(res, "year", level = 0.95)}
+  res <- glm(data = dataF[which(dataF[, "female"] == 1), ], formula = copd ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
+  out$calib_prev_copd_reg_coeffs_female <- coefficients(res)
+  if (return_CI) {out$conf_prev_copd_reg_coeffs_female <- stats::confint(res, "year", level = 0.95)}
 
-    res <- glm(data = dataF[which(dataF[, "female"] == 0), ], formula = gold2p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
-    out$calib_prev_gold2p_reg_coeffs_male <- coefficients(res)
-    if (return_CI) {out$conf_prev_gold2p_reg_coeffs_male <- stats::confint(res, "year", level = 0.95)}
+  res <- glm(data = dataF[which(dataF[, "female"] == 0), ], formula = gold2p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
+  out$calib_prev_gold2p_reg_coeffs_male <- coefficients(res)
+  if (return_CI) {out$conf_prev_gold2p_reg_coeffs_male <- stats::confint(res, "year", level = 0.95)}
 
-    res <- glm(data = dataF[which(dataF[, "female"] == 1), ], formula = gold2p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
-    out$calib_prev_gold2p_reg_coeffs_female <- coefficients(res)
-    if (return_CI) {out$conf_prev_gold2p_reg_coeffs_female <- stats::confint(res, "year", level = 0.95)}
+  res <- glm(data = dataF[which(dataF[, "female"] == 1), ], formula = gold2p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
+  out$calib_prev_gold2p_reg_coeffs_female <- coefficients(res)
+  if (return_CI) {out$conf_prev_gold2p_reg_coeffs_female <- stats::confint(res, "year", level = 0.95)}
 
-    res <- glm(data = dataF[which(dataF[, "female"] == 0), ], formula = gold3p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
-    out$calib_prev_gold3p_reg_coeffs_male <- coefficients(res)
-    if (return_CI) {out$conf_prev_gold3p_reg_coeffs_male <- stats::confint(res, "year", level = 0.95)}
+  res <- glm(data = dataF[which(dataF[, "female"] == 0), ], formula = gold3p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
+  out$calib_prev_gold3p_reg_coeffs_male <- coefficients(res)
+  if (return_CI) {out$conf_prev_gold3p_reg_coeffs_male <- stats::confint(res, "year", level = 0.95)}
 
-    res <- glm(data = dataF[which(dataF[, "female"] == 1), ], formula = gold3p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
-    out$calib_prev_gold3p_reg_coeffs_female <- coefficients(res)
-    if (return_CI) {out$conf_prev_gold3p_reg_coeffs_female <- stats::confint(res, "year", level = 0.95)}
+  res <- glm(data = dataF[which(dataF[, "female"] == 1), ], formula = gold3p ~ age + pack_years + smoking_status + year, family = binomial(link = logit))
+  out$calib_prev_gold3p_reg_coeffs_female <- coefficients(res)
+  if (return_CI) {out$conf_prev_gold3p_reg_coeffs_female <- stats::confint(res, "year", level = 0.95)}
 
 
   terminate_session()
@@ -646,7 +646,7 @@ validate_mortality <- function(n_sim = 5e+05, bgd = 1, bgd_h = 1, manual = 1, ex
 
 
     difference <- (Cget_output_ex()$n_death_by_age_sex[41:91, ]/Cget_output_ex()$sum_time_by_age_sex[41:91, ]) - model_input$values$agent$p_bgd_by_sex[41:91,
-                                                                                                                                                       ]
+    ]
     plot(40:90, difference[, 1], type = "l", col = "blue", xlab = "age", ylab = "Difference", ylim = c(-.1, .1))
     legend("topright", c("male", "female"), lty = c(1, 1), col = c("blue", "red"))
     lines(40:90, difference[, 2], type = "l", col = "red")
@@ -901,7 +901,7 @@ validate_exacerbation <- function(base_agents=1e4, input=NULL) {
   # CanCOLD only available for GOLD 1 and 2. See doi: 10.1164/rccm.201509-1795OC
 
   Follow_up_GOLD_all_2level <- c(Follow_up_GOLD[1], Follow_up_GOLD[2]) # Because CanCOLD is mostly GOLD2, here we compare EPIC's GOLD2 only instead of GOLD2+
-#  Follow_up_GOLD_all_2level <- c(Follow_up_GOLD[1], sum(Follow_up_GOLD[2:4]))
+  #  Follow_up_GOLD_all_2level <- c(Follow_up_GOLD[1], sum(Follow_up_GOLD[2:4]))
   GOLD_counts_all       <- as.data.frame(table(exac_events[, "gold"]))[, 2]
   GOLD_counts_all       <- c(GOLD_counts_all[1], sum(GOLD_counts_all[2:4]))
 
@@ -1029,13 +1029,13 @@ validate_exacerbation <- function(base_agents=1e4, input=NULL) {
 
 
   Exac_per_GOLD_undiagnosed[1:3, 2] <- c(total_rate_undiagnosed,
-    round(x=GOLD_counts_undiagnosed/Follow_up_GOLD_undiagnosed_2level, digit = 2))
+                                         round(x=GOLD_counts_undiagnosed/Follow_up_GOLD_undiagnosed_2level, digit = 2))
   Exac_per_GOLD_undiagnosed[1:3, 3] <- c(0.30, 0.24, 0.40)
 
   df <- as.data.frame(Exac_per_GOLD_undiagnosed)
   dfm <- melt(df[,c("GOLD", "EPIC", "CanCOLD")],id.vars = 1)
   plot <-
-   ggplot(dfm, aes(x = GOLD, y = as.numeric(value))) +
+    ggplot(dfm, aes(x = GOLD, y = as.numeric(value))) +
     scale_y_continuous(breaks = seq(0, 3, by = 0.5)) +
     theme_tufte(base_size=14, ticks=F)  +
     geom_bar(aes(fill = variable), stat = "identity", position = "dodge") +
@@ -1092,33 +1092,33 @@ validate_survival <- function(savePlots = FALSE, base_agents=1e4) {
 
   # Customized survival curves
   surv_plot <- survminer::ggsurvplot(fit, data = cohort, censor.shape="", censor.size = 1,
-                          surv.median.line = "hv", # Add medians survival
+                                     surv.median.line = "hv", # Add medians survival
 
-                          # Change legends: title & labels
-                          legend.title = "Disease Status",
-                          legend.labs = c("Non-COPD", "COPD"),
-                          # Add p-value and tervals
-                          pval = TRUE,
+                                     # Change legends: title & labels
+                                     legend.title = "Disease Status",
+                                     legend.labs = c("Non-COPD", "COPD"),
+                                     # Add p-value and tervals
+                                     pval = TRUE,
 
-                          conf.int = TRUE,
-                          xlim = c(40,110),         # present narrower X axis, but not affect
-                          # survival estimates.
-                          xlab = "Age",   # customize X axis label.
-                          break.time.by = 20,     # break X axis in time intervals by 500.
-                          # Add risk table
-                          #risk.table = TRUE,
-                          tables.height = 0.2,
-                          tables.theme = theme_cleantable(),
+                                     conf.int = TRUE,
+                                     xlim = c(40,110),         # present narrower X axis, but not affect
+                                     # survival estimates.
+                                     xlab = "Age",   # customize X axis label.
+                                     break.time.by = 20,     # break X axis in time intervals by 500.
+                                     # Add risk table
+                                     #risk.table = TRUE,
+                                     tables.height = 0.2,
+                                     tables.theme = theme_cleantable(),
 
-                          # Color palettes. Use custom color: c("#E7B800", "#2E9FDF"),
-                          # or brewer color (e.g.: "Dark2"), or ggsci color (e.g.: "jco")
-                          #palette = c("gray0", "gray1"),
-                          ggtheme = theme_tufte() +
-                            theme(axis.line = element_line(colour = "black"),
-                                  panel.grid.major = element_blank(),
-                                  panel.grid.minor = element_blank(),
-                                  panel.border = element_blank(),
-                                  panel.background = element_blank())  # Change ggplot2 theme
+                                     # Color palettes. Use custom color: c("#E7B800", "#2E9FDF"),
+                                     # or brewer color (e.g.: "Dark2"), or ggsci color (e.g.: "jco")
+                                     #palette = c("gray0", "gray1"),
+                                     ggtheme = theme_tufte() +
+                                       theme(axis.line = element_line(colour = "black"),
+                                             panel.grid.major = element_blank(),
+                                             panel.grid.minor = element_blank(),
+                                             panel.border = element_blank(),
+                                             panel.background = element_blank())  # Change ggplot2 theme
   )
 
   plot (surv_plot)
@@ -1168,13 +1168,13 @@ validate_diagnosis <- function(n_sim = 1e+04) {
   print(diag)
 
   message("The average proportion diagnosed from year", round(length(diag$Proportion)/2,0), "to", length(diag$Proportion), "is",
-      mean(diag$Proportion[(round(length(diag$Proportion)/2,0)):(length(diag$Proportion))]),"\n")
+          mean(diag$Proportion[(round(length(diag$Proportion)/2,0)):(length(diag$Proportion))]),"\n")
 
   diag.plot <- tidyr::gather(data=diag, key="Variable", value="Number", c(COPD,Diagnosed))
 
   diag.plotted <- ggplot2::ggplot(diag.plot, aes(x=Year, y=Number, col=Variable)) +
-                  geom_line() + geom_point() + expand_limits(y = 0) +
-                  theme_bw() + ylab("Number of COPD patients") + xlab("Years")
+    geom_line() + geom_point() + expand_limits(y = 0) +
+    theme_bw() + ylab("Number of COPD patients") + xlab("Years")
 
   plot(diag.plotted)
 
@@ -1189,13 +1189,13 @@ validate_diagnosis <- function(n_sim = 1e+04) {
   print(prop)
 
   message("The average proportion of GOLD 1 and 2 that are diagnosed from year", round(nrow(prop)/2,0), "to", max(prop$Year), "is",
-      (mean(prop$GOLD1[round((nrow(prop)/2),0):nrow(prop)]) + mean(prop$GOLD2[round((nrow(prop)/2),0):nrow(prop)]))/2,"\n")
+          (mean(prop$GOLD1[round((nrow(prop)/2),0):nrow(prop)]) + mean(prop$GOLD2[round((nrow(prop)/2),0):nrow(prop)]))/2,"\n")
 
   prop.plot <- tidyr::gather(data=prop, key="GOLD", value="Proportion", c(GOLD1:GOLD4))
 
   prop.plotted <- ggplot2::ggplot(prop.plot, aes(x=Year, y=Proportion, col=GOLD)) +
-                    geom_line() + geom_point() + expand_limits(y = 0) +
-                    theme_bw() + ylab("Proportion diagnosed") + xlab("Years")
+    geom_line() + geom_point() + expand_limits(y = 0) +
+    theme_bw() + ylab("Proportion diagnosed") + xlab("Years")
 
   plot(prop.plotted)
 
@@ -1230,7 +1230,7 @@ validate_gpvisits <- function(n_sim = 1e+04) {
   message("Here is the Average number of GP visits by sex:\n")
 
   GPSex <- data.frame(1:inputs$global_parameters$time_horizon,
-             output_ex$n_GPvisits_by_ctime_sex/output_ex$n_alive_by_ctime_sex)
+                      output_ex$n_GPvisits_by_ctime_sex/output_ex$n_alive_by_ctime_sex)
 
   names(GPSex) <- c("Year","Male","Female")
 
@@ -1241,8 +1241,8 @@ validate_gpvisits <- function(n_sim = 1e+04) {
   GPSex.plot <- subset(GPSex.plot, Year!=1)
 
   GPSex.plotted <- ggplot2::ggplot(GPSex.plot, aes(x=Year, y=Visits, col=Sex)) +
-                      geom_line() + geom_point() + expand_limits(y = 0) +
-                      theme_bw() + ylab("Average GP visits/year") + xlab("Years")
+    geom_line() + geom_point() + expand_limits(y = 0) +
+    theme_bw() + ylab("Average GP visits/year") + xlab("Years")
 
   plot(GPSex.plotted)
 
@@ -1251,7 +1251,7 @@ validate_gpvisits <- function(n_sim = 1e+04) {
   message("Here is the Average number of GP visits by COPD severity:\n")
 
   GPCOPD <- data.frame(1:inputs$global_parameters$time_horizon,
-                      output_ex$n_GPvisits_by_ctime_severity/output_ex$cumul_time_by_ctime_GOLD)
+                       output_ex$n_GPvisits_by_ctime_severity/output_ex$cumul_time_by_ctime_GOLD)
 
   names(GPCOPD) <- c("Year","NoCOPD","GOLD1","GOLD2","GOLD3","GOLD4")
 
@@ -1263,8 +1263,8 @@ validate_gpvisits <- function(n_sim = 1e+04) {
   GPCOPD.plot <- subset(GPCOPD.plot, Year!=1)
 
   GPCOPD.plotted <- ggplot2::ggplot(GPCOPD.plot, aes(x=Year, y=Visits, col=COPD)) +
-                        geom_line() + geom_point() + expand_limits(y = 0) +
-                        theme_bw() + ylab("Average GP visits/year") + xlab("Years")
+    geom_line() + geom_point() + expand_limits(y = 0) +
+    theme_bw() + ylab("Average GP visits/year") + xlab("Years")
 
   plot(GPCOPD.plotted)
 
@@ -1277,7 +1277,7 @@ validate_gpvisits <- function(n_sim = 1e+04) {
   data <- cbind(Undiagnosed, Diagnosed)
 
   GPDiag<- data.frame(Year=1:inputs$global_parameters$time_horizon,
-                       output_ex$n_GPvisits_by_ctime_diagnosis/data)
+                      output_ex$n_GPvisits_by_ctime_diagnosis/data)
 
   print(GPDiag[-1,])
 
@@ -1286,8 +1286,8 @@ validate_gpvisits <- function(n_sim = 1e+04) {
   GPDiag.plot <- subset(GPDiag.plot, Year!=1)
 
   GPDiag.plotted <- ggplot2::ggplot(GPDiag.plot, aes(x=Year, y=Visits, col=Diagnosis)) +
-                        geom_line() + geom_point() + expand_limits(y = 0) +
-                        theme_bw() + ylab("Average GP visits/year") + xlab("Years")
+    geom_line() + geom_point() + expand_limits(y = 0) +
+    theme_bw() + ylab("Average GP visits/year") + xlab("Years")
 
   plot(GPDiag.plotted)
 
@@ -1339,8 +1339,8 @@ validate_symptoms <- function(n_sim = 1e+04) {
   cough.plot$Symptom <- "cough"
 
   cough.plotted <- ggplot2::ggplot(cough.plot, aes(x=Year, y=Prevalence, col=GOLD)) +
-                      geom_smooth(method=lm, formula = y~x, level=0) + geom_point() + expand_limits(y = 0) +
-                      theme_bw() + ylab("Proportion with cough") + xlab("Model Year")
+    geom_smooth(method=lm, formula = y~x, level=0) + geom_point() + expand_limits(y = 0) +
+    theme_bw() + ylab("Proportion with cough") + xlab("Model Year")
 
   #plot(cough.plotted)
 
@@ -1351,7 +1351,7 @@ validate_symptoms <- function(n_sim = 1e+04) {
   message("\n")
 
   phlegm <- data.frame(1:inputs$global_parameters$time_horizon,
-                      output_ex$n_phlegm_by_ctime_severity/output_ex$n_COPD_by_ctime_severity)
+                       output_ex$n_phlegm_by_ctime_severity/output_ex$n_COPD_by_ctime_severity)
 
   names(phlegm) <- c("Year","NoCOPD","GOLD1","GOLD2","GOLD3","GOLD4")
 
@@ -1397,7 +1397,7 @@ validate_symptoms <- function(n_sim = 1e+04) {
   message("\n")
 
   dyspnea <- data.frame(1:inputs$global_parameters$time_horizon,
-                       output_ex$n_dyspnea_by_ctime_severity/output_ex$n_COPD_by_ctime_severity)
+                        output_ex$n_dyspnea_by_ctime_severity/output_ex$n_COPD_by_ctime_severity)
 
   names(dyspnea) <- c("Year","NoCOPD","GOLD1","GOLD2","GOLD3","GOLD4")
 
@@ -1478,9 +1478,9 @@ validate_treatment<- function(n_sim = 1e+04) {
   exac.plot <- tidyr::gather(data=rbind(undiagnosed, diagnosed), key="Exacerbation", value="Rate", Mild:VerySevere)
 
   exac.plotted <- ggplot2::ggplot(exac.plot, aes(x=Year, y=Rate, fill=Diagnosis)) +
-                      geom_bar(stat="identity", position="dodge") + facet_wrap(~Exacerbation, labeller=label_both) +
-                      scale_y_continuous(expand = c(0, 0)) +
-                      xlab("Model Year") + ylab("Annual rate of exacerbations") + theme_bw()
+    geom_bar(stat="identity", position="dodge") + facet_wrap(~Exacerbation, labeller=label_both) +
+    scale_y_continuous(expand = c(0, 0)) +
+    xlab("Model Year") + ylab("Annual rate of exacerbations") + theme_bw()
 
   plot(exac.plotted)
 
@@ -1506,7 +1506,7 @@ validate_treatment<- function(n_sim = 1e+04) {
   output_ex_nt <- Cget_output_ex()
 
   exac.diff <- data.frame(cbind(1:inputs_nt$global_parameters$time_horizon,
-                          output_ex_nt$n_exac_by_ctime_severity_diagnosed - output_ex$n_exac_by_ctime_severity_diagnosed))
+                                output_ex_nt$n_exac_by_ctime_severity_diagnosed - output_ex$n_exac_by_ctime_severity_diagnosed))
 
   names(exac.diff) <- c("Year","Mild","Moderate","Severe","VerySevere")
 
@@ -1526,27 +1526,27 @@ validate_treatment<- function(n_sim = 1e+04) {
   input_nd <- model_input$values
 
   input_nd$diagnosis$logit_p_prevalent_diagnosis_by_sex <- cbind(male=c(intercept=-100, age=-0.0152, smoking=0.1068, fev1=-0.6146,
-                                                                            cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
-                                                                            case_detection=0),
-                                                                     female=c(intercept=-100-0.1638, age=-0.0152, smoking=0.1068, fev1=-0.6146,
-                                                                              cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
-                                                                              case_detection=0))
+                                                                        cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
+                                                                        case_detection=0),
+                                                                 female=c(intercept=-100-0.1638, age=-0.0152, smoking=0.1068, fev1=-0.6146,
+                                                                          cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
+                                                                          case_detection=0))
 
   input_nd$diagnosis$p_hosp_diagnosis <- 0
 
   input_nd$diagnosis$logit_p_diagnosis_by_sex <- cbind(male=c(intercept=-100, age=-0.0324, smoking=0.3711, fev1=-0.8032,
-                                                                  gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
-                                                                  case_detection=0),
-                                                           female=c(intercept=-100-0.4873, age=-0.0324, smoking=0.3711, fev1=-0.8032,
-                                                                    gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
-                                                                    case_detection=0))
+                                                              gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
+                                                              case_detection=0),
+                                                       female=c(intercept=-100-0.4873, age=-0.0324, smoking=0.3711, fev1=-0.8032,
+                                                                gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
+                                                                case_detection=0))
 
   input_nd$diagnosis$logit_p_overdiagnosis_by_sex <- cbind(male=c(intercept=-100, age=0.0025, smoking=0.6911, gpvisits=0.0075,
-                                                                      cough=0.7264, phlegm=0.7956, wheeze=0.66, dyspnea=0.8798,
-                                                                      case_detection=0),
-                                                               female=c(intercept=-100+0.2597, age=0.0025, smoking=0.6911, gpvisits=0.0075,
-                                                                        cough=0.7264, phlegm=0.7956, wheeze=0.66, dyspnea=0.8798,
-                                                                        case_detection=0))
+                                                                  cough=0.7264, phlegm=0.7956, wheeze=0.66, dyspnea=0.8798,
+                                                                  case_detection=0),
+                                                           female=c(intercept=-100+0.2597, age=0.0025, smoking=0.6911, gpvisits=0.0075,
+                                                                    cough=0.7264, phlegm=0.7956, wheeze=0.66, dyspnea=0.8798,
+                                                                    case_detection=0))
 
   res <- run(input = input_nd)
   if (res < 0)
@@ -1565,20 +1565,20 @@ validate_treatment<- function(n_sim = 1e+04) {
   input_d <- model_input$values
 
   input_d$diagnosis$logit_p_prevalent_diagnosis_by_sex <- cbind(male=c(intercept=100, age=-0.0152, smoking=0.1068, fev1=-0.6146,
-                                                                        cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
-                                                                        case_detection=0),
-                                                                 female=c(intercept=100-0.1638, age=-0.0152, smoking=0.1068, fev1=-0.6146,
-                                                                          cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
-                                                                          case_detection=0))
+                                                                       cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
+                                                                       case_detection=0),
+                                                                female=c(intercept=100-0.1638, age=-0.0152, smoking=0.1068, fev1=-0.6146,
+                                                                         cough=0.075, phlegm=0.283, wheeze=-0.0275, dyspnea=0.5414,
+                                                                         case_detection=0))
 
   input_d$diagnosis$p_hosp_diagnosis <- 1
 
   input_d$diagnosis$logit_p_diagnosis_by_sex <- cbind(male=c(intercept=100, age=-0.0324, smoking=0.3711, fev1=-0.8032,
-                                                              gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
-                                                              case_detection=0),
-                                                       female=c(intercept=100-0.4873, age=-0.0324, smoking=0.3711, fev1=-0.8032,
-                                                                gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
-                                                                case_detection=0))
+                                                             gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
+                                                             case_detection=0),
+                                                      female=c(intercept=100-0.4873, age=-0.0324, smoking=0.3711, fev1=-0.8032,
+                                                               gpvisits=0.0087, cough=0.208, phlegm=0.4088, wheeze=0.0321, dyspnea=0.722,
+                                                               case_detection=0))
 
 
   res <- run(input = input_d)
@@ -1609,8 +1609,8 @@ validate_treatment<- function(n_sim = 1e+04) {
   trt.plot <- tidyr::gather(data=trt_effect, key="Diagnosis", value="Rate", Diagnosed:Undiagnosed)
 
   trt.plotted <- ggplot2::ggplot(trt.plot, aes(x=Year, y=Rate, col=Diagnosis)) +
-                            geom_line() + geom_point() + expand_limits(y = 0) +
-                            theme_bw() + ylab("Annual exacerbation rate") + xlab("Years")
+    geom_line() + geom_point() + expand_limits(y = 0) +
+    theme_bw() + ylab("Annual exacerbation rate") + xlab("Years")
 
   plot(trt.plotted)
 
@@ -1632,7 +1632,7 @@ test_case_detection <- function(n_sim = 1e+04, p_of_CD=0.1, min_age=40, min_pack
 
   settings <- default_settings
   settings$record_mode <- record_mode["record_mode_none"]
-#  settings$agent_stack_size <- 0
+  #  settings$agent_stack_size <- 0
   settings$n_base_agents <- n_sim
   settings$event_stack_size <- 0
   init_session(settings = settings)
@@ -1680,7 +1680,7 @@ test_case_detection <- function(n_sim = 1e+04, p_of_CD=0.1, min_age=40, min_pack
   # Exacerbations
   exac <- output$total_exac
   names(exac) <- c("Mild","Moderate","Severe","VerySevere")
-    # rate
+  # rate
   total.gold <- colSums(output_ex$n_COPD_by_ctime_severity[,2:5])
   names(total.gold) <- c("GOLD1","GOLD2","GOLD3","GOLD4")
 
@@ -1696,7 +1696,7 @@ test_case_detection <- function(n_sim = 1e+04, p_of_CD=0.1, min_age=40, min_pack
 
   # GOLD
   gold <- data.frame(CD="Case detection",
-                         Proportion=colMeans(output_ex$n_COPD_by_ctime_severity/rowSums(output_ex$n_alive_by_ctime_sex)))
+                     Proportion=colMeans(output_ex$n_COPD_by_ctime_severity/rowSums(output_ex$n_alive_by_ctime_sex)))
   gold$GOLD <- c("NoCOPD","GOLD1","GOLD2","GOLD3","GOLD4")
 
   terminate_session()
@@ -1724,7 +1724,7 @@ test_case_detection <- function(n_sim = 1e+04, p_of_CD=0.1, min_age=40, min_pack
   # Exacerbations
   exac_nocd <- output_nocd$total_exac
   names(exac_nocd) <- c("Mild","Moderate","Severe","VerySevere")
-    # rate
+  # rate
   total.gold_nocd <- colSums(output_ex_nocd$n_COPD_by_ctime_severity[,2:5])
   names(total.gold_nocd) <- c("GOLD1","GOLD2","GOLD3","GOLD4")
 
@@ -1732,9 +1732,9 @@ test_case_detection <- function(n_sim = 1e+04, p_of_CD=0.1, min_age=40, min_pack
   colnames(exac.gs_nocd) <- c("Mild","Moderate","Severe","VerySevere")
 
   exac_rate_nocd <- rbind(GOLD1=exac.gs_nocd[1,]/total.gold_nocd[1],
-                     GOLD2=exac.gs_nocd[2,]/total.gold_nocd[2],
-                     GOLD3=exac.gs_nocd[3,]/total.gold_nocd[3],
-                     GOLD4=exac.gs_nocd[4,]/total.gold_nocd[4])
+                          GOLD2=exac.gs_nocd[2,]/total.gold_nocd[2],
+                          GOLD3=exac.gs_nocd[3,]/total.gold_nocd[3],
+                          GOLD4=exac.gs_nocd[4,]/total.gold_nocd[4])
   exac_rate_nocd$CD <- "No Case detection"
   exac_rate_nocd$GOLD <- rownames(exac_rate_nocd)
 
@@ -1765,12 +1765,12 @@ test_case_detection <- function(n_sim = 1e+04, p_of_CD=0.1, min_age=40, min_pack
   exac.plot <- tidyr::gather(rbind(exac_rate, exac_rate_nocd), key="Exacerbation", value="Rate", Mild:VerySevere)
 
   exac.plotted <-ggplot2::ggplot(exac.plot, aes(x=Exacerbation, y=Rate, fill=CD)) +
-                      geom_bar(stat="identity", position="dodge") + facet_wrap(~GOLD, scales="free_y") +
-                      scale_y_continuous(expand = expand_scale(mult=c(0, 0.1))) +
-                      xlab("Exacerbation") + ylab("Annual rate of exacerbations") + theme_bw()
+    geom_bar(stat="identity", position="dodge") + facet_wrap(~GOLD, scales="free_y") +
+    scale_y_continuous(expand = expand_scale(mult=c(0, 0.1))) +
+    xlab("Exacerbation") + ylab("Annual rate of exacerbations") + theme_bw()
 
   exac.plotted <- exac.plotted + theme(axis.text.x=element_text(angle=45, hjust=1)) +
-                    theme(legend.title = element_blank())
+    theme(legend.title = element_blank())
 
   plot(exac.plotted)
 
@@ -1785,9 +1785,9 @@ test_case_detection <- function(n_sim = 1e+04, p_of_CD=0.1, min_age=40, min_pack
   gold.plot$GOLD <- factor(gold.plot$GOLD, levels=c("NoCOPD","GOLD1","GOLD2","GOLD3","GOLD4"))
 
   gold.plotted <- ggplot2::ggplot(gold.plot, aes(x=GOLD, y=Proportion, fill=CD)) +
-                      geom_bar(stat="identity", position="dodge") +
-                      scale_y_continuous(expand = c(0,0), limits=c(0,1)) +
-                      xlab("GOLD stage") + ylab("Average proportion") + theme_bw()
+    geom_bar(stat="identity", position="dodge") +
+    scale_y_continuous(expand = c(0,0), limits=c(0,1)) +
+    xlab("GOLD stage") + ylab("Average proportion") + theme_bw()
 
   gold.plotted <- gold.plotted + theme(legend.title = element_blank())
 
@@ -1826,15 +1826,15 @@ validate_overdiagnosis <- function(n_sim = 1e+04) {
   message("Here are the proportion of non-COPD subjects overdiagnosed over model time: \n")
 
   overdiag <- data.frame(Year=1:inputs$global_parameters$time_horizon,
-                     NonCOPD=output_ex$n_COPD_by_ctime_severity[,1],
-                     Overdiagnosed=rowSums(output_ex$n_Overdiagnosed_by_ctime_sex))
+                         NonCOPD=output_ex$n_COPD_by_ctime_severity[,1],
+                         Overdiagnosed=rowSums(output_ex$n_Overdiagnosed_by_ctime_sex))
 
   overdiag$Proportion <- overdiag$Overdiagnosed/overdiag$NonCOPD
 
   print(overdiag)
 
   message("The average proportion overdiagnosed from year", round(length(overdiag$Proportion)/2,0), "to", length(overdiag$Proportion), "is",
-      mean(overdiag$Proportion[(round(length(overdiag$Proportion)/2,0)):(length(overdiag$Proportion))]),"\n")
+          mean(overdiag$Proportion[(round(length(overdiag$Proportion)/2,0)):(length(overdiag$Proportion))]),"\n")
 
   overdiag.plot <- tidyr::gather(data=overdiag, key="Variable", value="Number", c(NonCOPD, Overdiagnosed))
 
@@ -1871,46 +1871,46 @@ validate_medication <- function(n_sim = 5e+04) {
 
   input <- model_input$values
 
-res <- run(input = input)
-if (res < 0)
-  stop("Execution stopped.\n")
+  res <- run(input = input)
+  if (res < 0)
+    stop("Execution stopped.\n")
 
-all_events <- as.data.frame(Cget_all_events_matrix())
-all_annual_events <- all_events[all_events$event==1,] # only annual event
+  all_events <- as.data.frame(Cget_all_events_matrix())
+  all_annual_events <- all_events[all_events$event==1,] # only annual event
 
-# Prop on each med class over time and by gold
-all_annual_events$time <- floor(all_annual_events$local_time + all_annual_events$time_at_creation)
+  # Prop on each med class over time and by gold
+  all_annual_events$time <- floor(all_annual_events$local_time + all_annual_events$time_at_creation)
 
-med.plot <- all_annual_events %>%
-  group_by(time, gold) %>%
-  count(medication_status) %>%
-  mutate(prop=n/sum(n))
+  med.plot <- all_annual_events %>%
+    group_by(time, gold) %>%
+    count(medication_status) %>%
+    mutate(prop=n/sum(n))
 
-med.plot$gold <- as.character(med.plot$gold )
+  med.plot$gold <- as.character(med.plot$gold )
 
-# overall among COPD patients
-copd <- med.plot %>%
-  filter(gold>0) %>%
-  group_by(time, medication_status) %>%
-  summarise(n=sum(n)) %>%
-  mutate(prop=n/sum(n), gold="all copd") %>%
-  select(time, gold, everything())
+  # overall among COPD patients
+  copd <- med.plot %>%
+    filter(gold>0) %>%
+    group_by(time, medication_status) %>%
+    summarise(n=sum(n)) %>%
+    mutate(prop=n/sum(n), gold="all copd") %>%
+    select(time, gold, everything())
 
-med.plot <- rbind(med.plot, copd)
+  med.plot <- rbind(med.plot, copd)
 
-med.plot$medication_status <- ifelse(med.plot$medication_status==0,"none",
-                                     ifelse(med.plot$medication_status==1,"SABA",
-                                            ifelse(med.plot$medication_status==4,"LAMA",
-                                                   ifelse(med.plot$medication_status==6,"LAMA/LABA",
-                                                          ifelse(med.plot$medication_status==14,"ICS/LAMA/LABA",9)))))
+  med.plot$medication_status <- ifelse(med.plot$medication_status==0,"none",
+                                       ifelse(med.plot$medication_status==1,"SABA",
+                                              ifelse(med.plot$medication_status==4,"LAMA",
+                                                     ifelse(med.plot$medication_status==6,"LAMA/LABA",
+                                                            ifelse(med.plot$medication_status==14,"ICS/LAMA/LABA",9)))))
 
-med.plotted <- ggplot2::ggplot(data=med.plot, aes(x=time, y=prop, col=medication_status)) +
-  geom_line() + facet_wrap(~gold, labeller=label_both) +
-  expand_limits(y = 0) + theme_bw() + ylab("Proportion per medication class") + xlab("Years") +
-  theme(legend.title=element_blank())
+  med.plotted <- ggplot2::ggplot(data=med.plot, aes(x=time, y=prop, col=medication_status)) +
+    geom_line() + facet_wrap(~gold, labeller=label_both) +
+    expand_limits(y = 0) + theme_bw() + ylab("Proportion per medication class") + xlab("Years") +
+    theme(legend.title=element_blank())
 
-plot(med.plotted)
+  plot(med.plotted)
 
-terminate_session()
+  terminate_session()
 
 }
