@@ -130,7 +130,7 @@ validate_population <- function(remove_COPD = 0, incidence_k = 1, savePlots = 0)
   USSim <- USSim[, 3:51]
   USSim <- colSums (USSim)
 
-  df <- data.frame(Year = c(2015:(2015 + model_input$values$global_parameters$time_horizon-1)), Predicted = USSim[1:model_input$values$global_parameters$time_horizon] * 1000, Simulated = rowSums(Cget_output_ex()$n_alive_by_ctime_sex)/ settings$n_base_agents * 18179400) #rescaling population. There are about 18.6 million Canadians above 40
+  df <- data.frame(Year = c(2022:(2022 + model_input$values$global_parameters$time_horizon-1)), Predicted = USSim[1:model_input$values$global_parameters$time_horizon] * 1000, Simulated = rowSums(Cget_output_ex()$n_alive_by_ctime_sex)/ settings$n_base_agents * 18179400) #rescaling population. There are about 161.8 million Americans above 40
   message ("Here's simulated vs. predicted population table:")
   print(df)
   dfm <- reshape2::melt(df[,c('Year','Predicted','Simulated')], id.vars = 1)
@@ -162,7 +162,7 @@ validate_population <- function(remove_COPD = 0, incidence_k = 1, savePlots = 0)
     #x <- c(x, rep(0, 111 - length(x) - 40))
     #barplot(x,  names.arg=40:110, xlab = "Age")
     #title(cex.main = 0.5, paste("Predicted Pyramid - ", year))
-    dfPredicted <- data.frame (population = x * 1000, age = 40:100)
+    dfPredicted <- data.frame (population = x * 10000, age = 40:100)
 
 
     # message("Predicted average age of those >40 y/o is", sum((input$global_parameters$age0:(input$global_parameters$age0 + length(x) -
@@ -173,8 +173,8 @@ validate_population <- function(remove_COPD = 0, incidence_k = 1, savePlots = 0)
     #                                                                                       1)) * x)/sum(x), "\n")
     # petoc()
 
-    dfSimulated <- data.frame (population = pyramid[year - 2015 + 1, ], age = 40:110)
-    dfSimulated$population <- dfSimulated$population * (-1) / settings$n_base_agents * 18179400 #rescaling population. There are 18179400 Canadians above 40
+    dfSimulated <- data.frame (population = pyramid[year - 2022 + 1, ], age = 40:110)
+    dfSimulated$population <- dfSimulated$population * (-1) / settings$n_base_agents * 161811500 #rescaling population. There are 161811500 Americans above 40
 
     p <- ggplot (NULL, aes(x = age, y = population)) + theme_tufte(base_size=14, ticks=F) +
       geom_bar (aes(fill = "Simulated"), data = dfSimulated, stat="identity", alpha = 0.5) +
