@@ -246,13 +246,19 @@ get_input <- function(age0 = 40,
   input_ref$agent$ln_h_bgd_betas <- get_metadata("agent", "ln_h_bgd_betas", "ref", "")
 
   input_help$agent$p_adi_quintiles <- get_metadata("agent", "p_adi_quintiles", "help", "Population-weighted probabilities for ADI quintiles 1-5")
-  input$agent$p_adi_quintiles <- convert_config_value(config$agent$p_adi_quintiles)
+  input$agent$p_adi_quintiles <- if (!is.null(config$agent$p_adi_quintiles)) {
+    convert_config_value(config$agent$p_adi_quintiles)
+  } else rep(0.2, 5)  # equal distribution across quintiles if not specified
   input_ref$agent$p_adi_quintiles <- get_metadata("agent", "p_adi_quintiles", "ref", "")
 
   input_help$agent$p_adi_quintiles_COPD <- "ADI quintile weights for prevalent COPD agents, derived from adi_p_COPD_multipliers and p_adi_quintiles via Bayes theorem. Reflects higher ADI burden among COPD agents while preserving overall COPD calibration."
   input$agent$p_adi_quintiles_COPD <- {
-    adi_copd_quintile_weights <- convert_config_value(config$COPD$adi_p_COPD_multipliers) * input$agent$p_adi_quintiles
-    adi_copd_quintile_weights / sum(adi_copd_quintile_weights)
+    if (!is.null(config$COPD$adi_p_COPD_multipliers)) {
+      adi_copd_quintile_weights <- convert_config_value(config$COPD$adi_p_COPD_multipliers) * input$agent$p_adi_quintiles
+      adi_copd_quintile_weights / sum(adi_copd_quintile_weights)
+    } else {
+      input$agent$p_adi_quintiles  # no ADI multipliers: COPD distribution = general population
+    }
   }
   input_ref$agent$p_adi_quintiles_COPD <- get_metadata("COPD", "adi_p_COPD_multipliers", "ref", "")
 

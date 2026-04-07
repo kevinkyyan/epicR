@@ -1043,7 +1043,6 @@ if(id<settings.n_base_agents)
                          +input.COPD.logit_p_COPD_betas_by_sex[4][(*ag).sex]*(*ag).smoking_status
                          +input.COPD.logit_p_COPD_betas_by_sex[5][(*ag).sex]*calendar_time)
                          //+input.COPD.logit_p_COPD_betas_by_sex[7]*(*ag).asthma
-                         // ADI offset removed: ADI assigned after COPD status (Step 7b), relationship captured via p_adi_quintiles_COPD
                          ;
 
   (*ag).p_COPD=COPD_odds/(1+COPD_odds);
@@ -1117,6 +1116,7 @@ if(id<settings.n_base_agents)
 {
   double r_adi = rand_unif();
   double cum_adi = 0;
+  (*ag).adi_quintile = 5;  // fallback: if r_adi >= cumulative sum, assign Q5
   if ((*ag).gold == 0) {
     // Non-COPD agent: use general population weights
     for (int q = 0; q < 5; q++) {
