@@ -2818,7 +2818,7 @@ terminate_session()
 }
 
 
-#' Validate ADI distribution of the general and COPD population over time
+#' Validate ADI distribution for the general and COPD population over time
 #'
 #' Plots (1) general population count by ADI quintile over a 45-year time horizon
 #' and (2) COPD population count by ADI quintile over the same horizon.
