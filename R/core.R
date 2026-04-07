@@ -71,7 +71,7 @@ get_default_settings<-function()
 #' @return recommended event_stack_size
 #' @export
 calc_event_stack_size <- function(n_agents, time_horizon = 20) {
-  events_per_agent <- .events_per_agent_per_year * time_horizon
+  events_per_agent <- 2 + .events_per_agent_per_year * time_horizon  # +2 for event_start and event_end
   return(ceiling(n_agents * events_per_agent))
 }
 
