@@ -1110,7 +1110,7 @@ if(id<settings.n_base_agents)
 
   }
 
-// ===== STEP 7b: Area Deprivation Index (ADI) Quintile Assignment =====
+// ===== Area Deprivation Index (ADI) Quintile Assignment =====
 // Assigned after COPD status (gold) is known so different weights can be used
 // for COPD vs non-COPD agents.
 {

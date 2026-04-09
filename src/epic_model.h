@@ -182,7 +182,7 @@ struct input {
     double logit_p_COPD_betas_by_sex[7][2];
     double ln_h_COPD_betas_by_sex[7][2];
     double adi_logit_p_COPD_offset[5];  // mean-centred log-OR by ADI quintile for prevalent COPD (Q1=least deprived)
-    double adi_ln_h_COPD_offset[5];     // mean-centred log-hazard by ADI quintile for incident COPD (Q1=least deprived)
+    double adi_h_COPD_factors[5];        // mean-centred hazard multipliers by ADI quintile for incident COPD (Q1=least deprived)
   } COPD;
 
   struct {
