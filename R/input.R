@@ -334,12 +334,12 @@ get_input <- function(age0 = 40,
   input$COPD$ln_h_COPD_betas_by_sex <- create_matrix_from_config(config$COPD$ln_h_COPD_betas_by_sex, transpose = FALSE)
   input_ref$COPD$ln_h_COPD_betas_by_sex <- get_metadata("COPD", "ln_h_COPD_betas_by_sex", "ref", "Amin's Iterative solution. Last Updated on 2022-06-33 (0.29.0)")
 
-  input_help$COPD$adi_h_COPD_factors <- get_metadata("COPD", "adi_ln_h_COPD_multipliers", "help", "Mean-centred hazard multipliers by ADI quintile for incident COPD. Applied as a post-hoc TTE scaling: tte = tte / factor. Derived from adi_ln_h_COPD_multipliers normalised by population-weighted mean.")
-  input$COPD$adi_h_COPD_factors <- if (!is.null(config$COPD$adi_ln_h_COPD_multipliers)) {
-    raw_multipliers <- convert_config_value(config$COPD$adi_ln_h_COPD_multipliers)
-    raw_multipliers / sum(input$agent$p_adi_quintiles * raw_multipliers)
-  } else rep(1.0, 5)
-  input_ref$COPD$adi_h_COPD_factors <- get_metadata("COPD", "adi_ln_h_COPD_multipliers", "ref", "ADI National Ranking by Quintile table — observed diagnosed COPD prevalence Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12")
+  input_help$COPD$p_adi_quintiles_incident_COPD <- get_metadata("COPD", "adi_ln_h_COPD_multipliers", "help", "ADI quintile weights for incident COPD agents, derived from adi_ln_h_COPD_multipliers and p_adi_quintiles via Bayes theorem. Used to reassign ADI quintile at the moment of incident COPD if inconsistent with the Hayes et al. distribution.")
+  input$COPD$p_adi_quintiles_incident_COPD <- if (!is.null(config$COPD$adi_ln_h_COPD_multipliers)) {
+    adi_incident_weights <- convert_config_value(config$COPD$adi_ln_h_COPD_multipliers) * input$agent$p_adi_quintiles
+    adi_incident_weights / sum(adi_incident_weights)
+  } else input$agent$p_adi_quintiles
+  input_ref$COPD$p_adi_quintiles_incident_COPD <- get_metadata("COPD", "adi_ln_h_COPD_multipliers", "ref", "ADI National Ranking by Quintile table — observed diagnosed COPD prevalence Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12")
 
 
   ## Lung function

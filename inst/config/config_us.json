@@ -158,10 +158,10 @@
       "help": "Logit of the probability of having COPD (FEV1/FVC<0.7) at time of creation (separately by sex)",
       "ref": "Adapted to US setting (July 22, 2025). CanCold - Shahzad's Derivation."
     },
-    "adi_p_COPD_multipliers": [1.0, 1.0, 1.22, 1.69, 2.75],
+    "adi_p_COPD_multipliers": [1.0, 1.0, 1.2, 1.6, 2.4],
     "adi_p_COPD_multipliers_metadata": {
-      "help": "Relative diagnosed COPD prevalence by ADI quintile (Q1=least deprived, reference=1.0). Used with p_adi_quintiles to compute mean-centred logit offsets at runtime in input.R. Preserves overall COPD prevalence target.",
-      "ref": "Hayes et al. 2024 (AnnalsATS). Raw observed prevalence ratios Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12 give target ratios [1.0,1.0,1.2,1.6,2.4]. Multipliers inflated to [1.0,1.0,1.22,1.70,2.76] to compensate for denominator dilution at ~12% overall COPD prevalence so that n_COPD/n_alive reproduces the target ratios."
+      "help": "Relative diagnosed COPD prevalence by ADI quintile (Q1=least deprived, reference=1.0). Used with p_adi_quintiles via Bayes theorem to compute p_adi_quintiles_COPD in input.R.",
+      "ref": "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%. Ratios relative to Q1."
     },
     "ln_h_COPD_betas_by_sex": {
       "male": [-7.62659032, 0.03116591, 0, 0.0276946, 0, 0, 0],
@@ -171,10 +171,10 @@
       "help": "Log-hazard of developing COPD (FEV1/FVC<LLN) for those who did not have COPD at creation time (separately by sex)",
       "ref": "Amin's Iterative solution. Last Updated on 2022-06-33 (0.29.0)"
     },
-    "adi_ln_h_COPD_multipliers": [1.0, 1.0, 1.22, 1.69, 2.75],
+    "adi_ln_h_COPD_multipliers": [1.0, 1.0, 1.2, 1.6, 2.4],
     "adi_ln_h_COPD_multipliers_metadata": {
-      "help": "Relative incident COPD hazard by ADI quintile (Q1=least deprived, reference=1.0). Used with p_adi_quintiles to compute mean-centred log-hazard offsets at runtime in input.R. Preserves overall COPD incidence target.",
-      "ref": "Hayes et al. 2024 (AnnalsATS). Matched to adi_p_COPD_multipliers for consistency — inflated from raw ratios [1.0,1.0,1.2,1.6,2.4] to [1.0,1.0,1.22,1.70,2.76] to reproduce target Q5:Q1 prevalence ratio of 2.4x at ~12% overall COPD prevalence."
+      "help": "Relative incident COPD hazard by ADI quintile (Q1=least deprived, reference=1.0). Used with p_adi_quintiles via Bayes theorem to compute p_adi_quintiles_incident_COPD in input.R.",
+      "ref": "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%. Ratios relative to Q1."
     }
   },
   "lung_function": {

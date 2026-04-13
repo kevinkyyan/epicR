@@ -437,7 +437,7 @@ double event_COPD_tte(agent *ag)
   );
 
   double tte;
-  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate/input.COPD.adi_h_COPD_factors[(*ag).adi_quintile-1];
+  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate;
   //return(HUGE_VAL);
   return(tte);
 }
@@ -446,6 +446,18 @@ double event_COPD_tte(agent *ag)
 
 void event_COPD_process(agent *ag)
 {
+  // Reassign ADI quintile if inconsistent with incident COPD distribution (Hayes et al.)
+  {
+    double r_adi = rand_unif();
+    double cum_adi = 0;
+    int new_quintile = 5;
+    for (int q = 0; q < 5; q++) {
+      cum_adi += input.COPD.p_adi_quintiles_incident_COPD[q];
+      if (r_adi < cum_adi) { new_quintile = q + 1; break; }
+    }
+    if (new_quintile != (*ag).adi_quintile) (*ag).adi_quintile = new_quintile;
+  }
+
   (*ag).weight_baseline = (*ag).weight;
   (*ag).age_baseline = (*ag).local_time+(*ag).age_at_creation;
   (*ag).followup_time = 0 ;
