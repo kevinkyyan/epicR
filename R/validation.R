@@ -2820,13 +2820,13 @@ terminate_session()
 
 #' Validate ADI distribution for the general and COPD population over time
 #'
-#' Plots (1) general population count by ADI quintile over a 45-year time horizon
-#' and (2) COPD population count by ADI quintile over the same horizon.
+#' Plots (1) general population proportion by ADI quintile over a 45-year time horizon
+#' and (2) COPD prevalence rate (n_COPD / n_alive) by ADI quintile over the same horizon.
 #' @param n_sim Number of base agents. Default is 1e6.
 #' @return Invisibly returns a list with the two data frames used for plotting.
 #' @export
 validate_adi <- function(n_sim = 1e6) {
-  message("validate_adi(): plotting population and COPD counts by ADI quintile over 45 years.\n")
+  message("validate_adi(): plotting population proportion and COPD prevalence by ADI quintile over 45 years.\n")
 
   results <- simulate(n_agents = n_sim, time_horizon = 45, extended_results = TRUE, jurisdiction = "us")
   output_ex <- results$extended
@@ -2835,45 +2835,51 @@ validate_adi <- function(n_sim = 1e6) {
   years <- seq_len(time_horizon)
   quintile_labels <- paste0("Q", 1:5)
 
-  # ---- Plot 1: General population by ADI quintile ----
+  # ---- Plot 1: General population proportion by ADI quintile ----
   df_alive <- as.data.frame(output_ex$n_alive_by_ctime_adi)
   colnames(df_alive) <- quintile_labels
   df_alive$year <- years
+  df_alive$total <- rowSums(output_ex$n_alive_by_ctime_adi)
+  df_alive[, quintile_labels] <- df_alive[, quintile_labels] / df_alive$total
+  df_alive$total <- NULL
 
   df_alive_long <- reshape2::melt(df_alive, id.vars = "year",
                                   variable.name = "ADI_quintile",
-                                  value.name = "n_alive")
+                                  value.name = "proportion")
 
-  p1 <- ggplot2::ggplot(df_alive_long, ggplot2::aes(x = year, y = n_alive, colour = ADI_quintile)) +
+  p1 <- ggplot2::ggplot(df_alive_long, ggplot2::aes(x = year, y = proportion, colour = ADI_quintile)) +
     ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     ggplot2::expand_limits(y = 0) +
     ggplot2::theme_bw() +
     ggplot2::labs(
-      title = "General Population by ADI Quintile",
-      x = "Year", y = "Number alive",
+      title = "General Population Proportion by ADI Quintile",
+      x = "Year", y = "Proportion of total population",
       colour = "ADI quintile",
-      caption = "n_alive_by_ctime_adi"
+      caption = "n_alive_by_ctime_adi / rowSums(n_alive_by_ctime_adi)"
     )
   plot(p1)
 
-  # ---- Plot 2: COPD population by ADI quintile ----
-  df_copd <- as.data.frame(output_ex$n_COPD_by_ctime_adi)
+  # ---- Plot 2: COPD prevalence rate by ADI quintile ----
+  copd_rate <- output_ex$n_COPD_by_ctime_adi / output_ex$n_alive_by_ctime_adi
+  df_copd <- as.data.frame(copd_rate)
   colnames(df_copd) <- quintile_labels
   df_copd$year <- years
 
   df_copd_long <- reshape2::melt(df_copd, id.vars = "year",
                                  variable.name = "ADI_quintile",
-                                 value.name = "n_COPD")
+                                 value.name = "copd_rate")
 
-  p2 <- ggplot2::ggplot(df_copd_long, ggplot2::aes(x = year, y = n_COPD, colour = ADI_quintile)) +
+  p2 <- ggplot2::ggplot(df_copd_long, ggplot2::aes(x = year, y = copd_rate, colour = ADI_quintile)) +
     ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     ggplot2::expand_limits(y = 0) +
     ggplot2::theme_bw() +
     ggplot2::labs(
-      title = "COPD Population by ADI Quintile",
-      x = "Year", y = "Number with COPD (GOLD > 0)",
+      title = "COPD Prevalence Rate by ADI Quintile",
+      x = "Year", y = "COPD prevalence (n_COPD / n_alive)",
       colour = "ADI quintile",
-      caption = "n_COPD_by_ctime_adi"
+      caption = "n_COPD_by_ctime_adi / n_alive_by_ctime_adi"
     )
   plot(p2)
 
