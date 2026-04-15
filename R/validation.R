@@ -2820,10 +2820,17 @@ terminate_session()
 
 #' Validate ADI distribution for the general and COPD population over time
 #'
-#' Plots (1) general population proportion by ADI quintile over a 45-year time horizon
-#' and (2) COPD prevalence rate (n_COPD / n_alive) by ADI quintile over the same horizon.
+#' Plot (1) general population proportion by ADI quintile over a 45-year time horizon
+#' Plot (2) COPD prevalence rate (n_COPD / n_alive) by ADI quintile over the same horizon.
+#' Plot (3) For each ADI quintile, the relative rate of COPD compared to Q1
+#'   (least deprived) over time. Computed by dividing each quintile's share of
+#'   all COPD cases by its share of non-COPD individuals, then expressing the
+#'   result as a ratio to Q1. Dashed reference lines show the expected targets
+#'   from Hayes et al. 2024 (Q2=1.0, Q3=1.2, Q4=1.6, Q5=2.4), where a value
+#'   of 2.4 for Q5 means the most deprived group carries 2.4 times the COPD
+#'   burden of the least deprived.
 #' @param n_sim Number of base agents. Default is 1e6.
-#' @return Invisibly returns a list with the two data frames used for plotting.
+#' @return Invisibly returns a list with the three data frames used for plotting.
 #' @export
 validate_adi <- function(n_sim = 1e6) {
   message("validate_adi(): plotting population proportion and COPD prevalence by ADI quintile over 45 years.\n")
@@ -2852,11 +2859,14 @@ validate_adi <- function(n_sim = 1e6) {
     ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     ggplot2::expand_limits(y = 0) +
     ggplot2::theme_bw() +
+    ggplot2::theme(
+      plot.title   = ggplot2::element_text(hjust = 0.5),
+      panel.grid   = ggplot2::element_blank()
+    ) +
     ggplot2::labs(
       title = "General Population Proportion by ADI Quintile",
-      x = "Year", y = "Proportion of total population",
-      colour = "ADI quintile",
-      caption = "n_alive_by_ctime_adi / rowSums(n_alive_by_ctime_adi)"
+      x = "Year", y = "Proportion of Total Population",
+      colour = "ADI quintile"
     )
   plot(p1)
 
@@ -2875,14 +2885,65 @@ validate_adi <- function(n_sim = 1e6) {
     ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     ggplot2::expand_limits(y = 0) +
     ggplot2::theme_bw() +
+    ggplot2::theme(
+      plot.title   = ggplot2::element_text(hjust = 0.5),
+      panel.grid   = ggplot2::element_blank()
+    ) +
     ggplot2::labs(
       title = "COPD Prevalence Rate by ADI Quintile",
-      x = "Year", y = "COPD prevalence (n_COPD / n_alive)",
-      colour = "ADI quintile",
-      caption = "n_COPD_by_ctime_adi / n_alive_by_ctime_adi"
+      x = "Year", y = "COPD Prevalence",
+      colour = "ADI Quintile"
     )
   plot(p2)
 
-  invisible(list(alive = df_alive_long, copd = df_copd_long))
+  # ---- Plot 3: COPD density RR relative to Q1 by year ----
+  alive    <- output_ex$n_alive_by_ctime_adi
+  copd     <- output_ex$n_COPD_by_ctime_adi
+  non_copd <- alive - copd
+
+  rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
+    copd_prop     <- copd[yr, ]     / sum(copd[yr, ])
+    non_copd_prop <- non_copd[yr, ] / sum(non_copd[yr, ])
+    rel_density   <- copd_prop / non_copd_prop
+    rel_density   / rel_density[1]
+  }))
+  colnames(rr_mat) <- quintile_labels
+  df_rr      <- as.data.frame(rr_mat)
+  df_rr$year <- years
+
+  df_rr_long <- reshape2::melt(df_rr, id.vars = "year",
+                               variable.name = "ADI_quintile",
+                               value.name = "rr")
+
+  benchmarks <- data.frame(
+    ADI_quintile = factor(quintile_labels),
+    expected     = c(1.0, 1.0, 1.2, 1.6, 2.4)
+  )
+
+  p3 <- ggplot2::ggplot(
+    df_rr_long,
+    ggplot2::aes(x = year, y = rr, colour = ADI_quintile)
+  ) +
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::geom_hline(
+      data = benchmarks,
+      ggplot2::aes(yintercept = expected, colour = ADI_quintile),
+      linetype = "dashed", linewidth = 0.4
+    ) +
+    ggplot2::expand_limits(y = 0) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(hjust = 0.5),
+      panel.grid = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(
+      title  = "COPD Density RR Relative to Q1",
+      x      = "Year",
+      y      = "Density RR vs Q1",
+      colour = "ADI Quintile"
+    )
+  plot(p3)
+
+  invisible(list(alive = df_alive_long, copd = df_copd_long, rr = df_rr_long))
 }
 

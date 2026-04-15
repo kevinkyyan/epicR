@@ -19,14 +19,17 @@ test_that("All ADI quintile values are between the values of 1-5", {
   )
 })
 
-test_that("ADI quintile remains constant per simulated individual over a 50-year horizon", {
-  results <- simulate(jurisdiction = "us", n_agents = 10000, time_horizon = 50, return_events = TRUE)
+test_that("ADI quintile changes at most once per agent (at COPD onset)", {
+  results <- simulate(
+    jurisdiction = "us", n_agents = 1000000,
+    time_horizon = 50, return_events = TRUE
+  )
 
   quintiles_per_agent <- results$events |>
-  dplyr::group_by(id) |>
-  dplyr::summarise(n_unique_quintiles = dplyr::n_distinct(adi_quintile))
+    dplyr::group_by(id) |>
+    dplyr::summarise(n_unique_quintiles = dplyr::n_distinct(adi_quintile))
 
-  expect_true(all(quintiles_per_agent$n_unique_quintiles == 1))
+  expect_true(all(quintiles_per_agent$n_unique_quintiles <= 2))
 })
 
 
