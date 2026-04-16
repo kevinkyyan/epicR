@@ -25,11 +25,25 @@ test_that("ADI quintile changes at most once per agent (at COPD onset)", {
     time_horizon = 50, return_events = TRUE
   )
 
-  quintiles_per_agent <- results$events |>
-    dplyr::group_by(id) |>
-    dplyr::summarise(n_unique_quintiles = dplyr::n_distinct(adi_quintile))
+  events <- results$events
 
-  expect_true(all(quintiles_per_agent$n_unique_quintiles <= 2))
+  ever_copd <- events |>
+    dplyr::group_by(id) |>
+    dplyr::summarise(ever_copd = any(gold > 0))
+
+  quintiles_per_agent <- events |>
+    dplyr::group_by(id) |>
+    dplyr::summarise(n_unique_quintiles = dplyr::n_distinct(adi_quintile)) |>
+    dplyr::left_join(ever_copd, by = "id")
+
+  non_copd <- quintiles_per_agent[!quintiles_per_agent$ever_copd, ]
+  copd     <- quintiles_per_agent[quintiles_per_agent$ever_copd, ]
+
+  # Agents who never develop COPD must have a fixed quintile
+  expect_true(all(non_copd$n_unique_quintiles == 1))
+
+  # Agents who develop COPD may switch quintile once at onset
+  expect_true(all(copd$n_unique_quintiles <= 2))
 })
 
 
@@ -121,8 +135,8 @@ test_that("COPD density RR recovers Hayes 2024 multipliers per year", {
   #   relative density[q] = (COPD share in q) / (non-COPD share in q)
   #   rr[q]            = relative density[q] / relative density[Q1]
   # Non-COPD agents follow p_adi_quintiles by construction, serving as the
-  # population baseline. Recovers [1, 1, 1.2, 1.6, 2.4] (Hayes 2024).
-  results <- simulate(jurisdiction = "us", n_agents = 100000,
+  # population baseline. Recovers [1, 1, 1.2, 1.6, 2.4] Hayes et al. 2024.
+  results <- simulate(jurisdiction = "us", n_agents = 1000000,
                       time_horizon = 50, extended_results = TRUE)
 
   alive    <- results$extended$n_alive_by_ctime_adi
