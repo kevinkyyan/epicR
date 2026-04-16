@@ -194,7 +194,7 @@ int set_input_var(std::string name, NumericVector value)
 
   if(name=="COPD$ln_h_COPD_betas_by_sex") READ_R_MATRIX(value,input.COPD.ln_h_COPD_betas_by_sex);
   if(name=="COPD$logit_p_COPD_betas_by_sex") READ_R_MATRIX(value,input.COPD.logit_p_COPD_betas_by_sex);
-  if(name=="COPD$p_adi_quintiles_incident_COPD") READ_R_VECTOR(value,input.COPD.p_adi_quintiles_incident_COPD);
+  if(name=="COPD$adi_h_COPD_factors") READ_R_VECTOR(value,input.COPD.adi_h_COPD_factors);
 
   if(name=="lung_function$pred_fev1_betas_by_sex") READ_R_MATRIX(value,input.lung_function.pred_fev1_betas_by_sex);
   if(name=="lung_function$fev1_0_prev_betas_by_sex") READ_R_MATRIX(value,input.lung_function.fev1_0_prev_betas_by_sex);
