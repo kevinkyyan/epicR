@@ -163,3 +163,38 @@ test_that("COPD density RR recovers Hayes 2024 multipliers per year", {
       label = sprintf("Yr%d Q5/Q1=%.3f (exp 2.4)", yr, rr[5]))
   }
 })
+
+test_that("COPD IRR recovers Hayes 2024 multipliers per year", {
+  #   IRR[q] = (new COPD cases in q / at-risk in q) /
+  #            (new COPD cases in Q1 / at-risk in Q1)
+  # Directly tests [1, 1, 1.2, 1.6, 2.4] TTE hazard multipliers are applied
+  # correctly each year, independent of quintile population size differences
+  # and OR/RR conflation from prevalence-based tests.
+  results <- simulate(jurisdiction = "us", n_agents = 1000000,
+                      time_horizon = 50, extended_results = TRUE)
+
+  alive <- results$extended$n_alive_by_ctime_adi
+  copd  <- results$extended$n_COPD_by_ctime_adi
+
+  for (yr in 2:nrow(alive)) {
+    at_risk  <- alive[yr - 1, ] - copd[yr - 1, ]
+    incident <- pmax(copd[yr, ] - copd[yr - 1, ], 0)
+
+    if (any(at_risk < 100)) next
+
+    irr <- (incident / at_risk) / (incident[1] / at_risk[1])
+
+    expect_true(
+      irr[2] >= 0.95 && irr[2] <= 1.05,
+      label = sprintf("Yr%d Q2/Q1 IRR=%.3f (exp 1.0)", yr, irr[2]))
+    expect_true(
+      irr[3] >= 1.14 && irr[3] <= 1.26,
+      label = sprintf("Yr%d Q3/Q1 IRR=%.3f (exp 1.2)", yr, irr[3]))
+    expect_true(
+      irr[4] >= 1.52 && irr[4] <= 1.68,
+      label = sprintf("Yr%d Q4/Q1 IRR=%.3f (exp 1.6)", yr, irr[4]))
+    expect_true(
+      irr[5] >= 2.28 && irr[5] <= 2.52,
+      label = sprintf("Yr%d Q5/Q1 IRR=%.3f (exp 2.4)", yr, irr[5]))
+  }
+})

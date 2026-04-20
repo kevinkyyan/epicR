@@ -2944,6 +2944,46 @@ validate_adi <- function(n_sim = 1e6) {
     )
   plot(p3)
 
-  invisible(list(alive = df_alive_long, copd = df_copd_long, rr = df_rr_long))
+  # ---- Plot 4: COPD incidence rate ratio relative to Q1 by year ----
+  irr_mat <- t(sapply(2:time_horizon, function(yr) {
+    at_risk  <- alive[yr - 1, ] - copd[yr - 1, ]
+    incident <- pmax(copd[yr, ] - copd[yr - 1, ], 0)
+    irr      <- (incident / at_risk) / (incident[1] / at_risk[1])
+    irr
+  }))
+  colnames(irr_mat) <- quintile_labels
+  df_irr      <- as.data.frame(irr_mat)
+  df_irr$year <- years[-1]
+
+  df_irr_long <- reshape2::melt(df_irr, id.vars = "year",
+                                variable.name = "ADI_quintile",
+                                value.name = "irr")
+
+  p4 <- ggplot2::ggplot(
+    df_irr_long,
+    ggplot2::aes(x = year, y = irr, colour = ADI_quintile)
+  ) +
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::geom_hline(
+      data = benchmarks,
+      ggplot2::aes(yintercept = expected, colour = ADI_quintile),
+      linetype = "dashed", linewidth = 0.4
+    ) +
+    ggplot2::expand_limits(y = 0) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(hjust = 0.5),
+      panel.grid = ggplot2::element_blank()
+    ) +
+    ggplot2::labs(
+      title  = "COPD Incidence Rate Ratio Relative to Q1",
+      x      = "Year",
+      y      = "IRR vs Q1",
+      colour = "ADI Quintile"
+    )
+  plot(p4)
+
+  invisible(list(alive = df_alive_long, copd = df_copd_long,
+                 rr = df_rr_long, irr = df_irr_long))
 }
 
