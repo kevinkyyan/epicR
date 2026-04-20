@@ -2896,16 +2896,15 @@ validate_adi <- function(n_sim = 1e6) {
     )
   plot(p2)
 
-  # ---- Plot 3: COPD density RR relative to Q1 by year ----
+  # ---- Plot 3: COPD prevalence ratio relative to Q1 by year ----
   alive    <- output_ex$n_alive_by_ctime_adi
   copd     <- output_ex$n_COPD_by_ctime_adi
-  non_copd <- alive - copd
+  pop_prop <- c(0.21392596, 0.23087204, 0.21450997, 0.18572808, 0.15496396)
 
   rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
-    copd_prop     <- copd[yr, ]     / sum(copd[yr, ])
-    non_copd_prop <- non_copd[yr, ] / sum(non_copd[yr, ])
-    rel_density   <- copd_prop / non_copd_prop
-    rel_density   / rel_density[1]
+    copd_prop  <- copd[yr, ] / sum(copd[yr, ])
+    prev_ratio <- copd_prop / pop_prop
+    prev_ratio / prev_ratio[1]
   }))
   colnames(rr_mat) <- quintile_labels
   df_rr      <- as.data.frame(rr_mat)
@@ -2937,9 +2936,9 @@ validate_adi <- function(n_sim = 1e6) {
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(
-      title  = "COPD Density RR Relative to Q1",
+      title  = "COPD Prevalence Ratio Relative to Q1",
       x      = "Year",
-      y      = "Density RR vs Q1",
+      y      = "Prevalence Ratio vs Q1",
       colour = "ADI Quintile"
     )
   plot(p3)
@@ -2948,6 +2947,7 @@ validate_adi <- function(n_sim = 1e6) {
   irr_mat <- t(sapply(2:time_horizon, function(yr) {
     at_risk  <- alive[yr - 1, ] - copd[yr - 1, ]
     incident <- pmax(copd[yr, ] - copd[yr - 1, ], 0)
+    if (any(at_risk < 500)) return(rep(NA_real_, 5))
     irr      <- (incident / at_risk) / (incident[1] / at_risk[1])
     irr
   }))
