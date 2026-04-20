@@ -2896,16 +2896,15 @@ validate_adi <- function(n_sim = 1e6) {
     )
   plot(p2)
 
-  # ---- Plot 3: COPD density RR relative to Q1 by year ----
-  alive    <- output_ex$n_alive_by_ctime_adi
-  copd     <- output_ex$n_COPD_by_ctime_adi
-  non_copd <- alive - copd
+  # ---- Plot 3: COPD prevalence ratio relative to Q1 by year ----
+  alive <- output_ex$n_alive_by_ctime_adi
+  copd  <- output_ex$n_COPD_by_ctime_adi
 
   rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
-    copd_prop     <- copd[yr, ]     / sum(copd[yr, ])
-    non_copd_prop <- non_copd[yr, ] / sum(non_copd[yr, ])
-    rel_density   <- copd_prop / non_copd_prop
-    rel_density   / rel_density[1]
+    copd_prop  <- copd[yr, ]  / sum(copd[yr, ])
+    alive_prop <- alive[yr, ] / sum(alive[yr, ])
+    prev_ratio <- copd_prop / alive_prop
+    prev_ratio / prev_ratio[1]
   }))
   colnames(rr_mat) <- quintile_labels
   df_rr      <- as.data.frame(rr_mat)
@@ -2937,9 +2936,9 @@ validate_adi <- function(n_sim = 1e6) {
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(
-      title  = "COPD Density RR Relative to Q1",
+      title  = "COPD Prevalence Ratio Relative to Q1",
       x      = "Year",
-      y      = "Density RR vs Q1",
+      y      = "Prevalence Ratio vs Q1",
       colour = "ADI Quintile"
     )
   plot(p3)
