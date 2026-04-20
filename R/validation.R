@@ -2897,13 +2897,15 @@ validate_adi <- function(n_sim = 1e6) {
   plot(p2)
 
   # ---- Plot 3: COPD prevalence ratio relative to Q1 by year ----
-  alive <- output_ex$n_alive_by_ctime_adi
-  copd  <- output_ex$n_COPD_by_ctime_adi
+  # Denominator uses fixed neighbourhood population proportions (pi_q) matching
+  # the Hayes et al. definition: COPD cases / population in those neighbourhoods.
+  alive   <- output_ex$n_alive_by_ctime_adi
+  copd    <- output_ex$n_COPD_by_ctime_adi
+  pop_prop <- c(0.21392596, 0.23087204, 0.21450997, 0.18572808, 0.15496396)
 
   rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
-    copd_prop  <- copd[yr, ]  / sum(copd[yr, ])
-    alive_prop <- alive[yr, ] / sum(alive[yr, ])
-    prev_ratio <- copd_prop / alive_prop
+    copd_prop  <- copd[yr, ] / sum(copd[yr, ])
+    prev_ratio <- copd_prop / pop_prop
     prev_ratio / prev_ratio[1]
   }))
   colnames(rr_mat) <- quintile_labels
