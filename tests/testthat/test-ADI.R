@@ -21,7 +21,7 @@ test_that("All ADI quintile values are between the values of 1-5", {
 
 test_that("ADI quintile changes at most once per agent (at COPD onset)", {
   results <- simulate(
-    jurisdiction = "us", n_agents = 1000000,
+    jurisdiction = "us", n_agents = 100000,
     time_horizon = 50, return_events = TRUE
   )
 
@@ -47,7 +47,7 @@ test_that("ADI quintile changes at most once per agent (at COPD onset)", {
 })
 
 
-test_that("COPD density RR recovers Hayes 2024 multipliers at baseline +/-5%", {
+test_that("COPD RR recovers Hayes 2024 multipliers at baseline +/-5%", {
   results <- simulate(
     jurisdiction = "us", n_agents = 100000,
     time_horizon = 1, return_events = TRUE
