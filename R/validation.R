@@ -2822,13 +2822,12 @@ terminate_session()
 #'
 #' Plot (1) general population proportion by ADI quintile over a 45-year time horizon
 #' Plot (2) COPD prevalence rate (n_COPD / n_alive) by ADI quintile over the same horizon.
-#' Plot (3) For each ADI quintile, the relative rate of COPD compared to Q1
-#'   (least deprived) over time. Computed by dividing each quintile's share of
-#'   all COPD cases by its share of non-COPD individuals, then expressing the
-#'   result as a ratio to Q1. Dashed reference lines show the expected targets
-#'   from Hayes et al. 2024 (Q2=1.0, Q3=1.2, Q4=1.6, Q5=2.4), where a value
-#'   of 2.4 for Q5 means the most deprived group carries 2.4 times the COPD
-#'   burden of the least deprived.
+#' Plot (3) COPD prevalence ratio relative to Q1 by year. Computed as COPD
+#'   prevalence (n_COPD / n_alive) in each quintile divided by the same rate
+#'   in Q1. Dashed reference lines show Hayes et al. 2024 targets
+#'   (Q2=1.0, Q3=1.2, Q4=1.6, Q5=2.4), where 2.4 means individuals in the
+#'   most deprived quintile are 2.4 times as likely to have COPD as those in
+#'   the least deprived quintile.
 #' @param n_sim Number of base agents. Default is 1e6.
 #' @return Invisibly returns a list with the three data frames used for plotting.
 #' @export
@@ -2897,17 +2896,15 @@ validate_adi <- function(n_sim = 1e6) {
   plot(p2)
 
   # ---- Plot 3: COPD prevalence ratio relative to Q1 by year ----
-  alive    <- output_ex$n_alive_by_ctime_adi
-  copd     <- output_ex$n_COPD_by_ctime_adi
-  pop_prop <- c(0.21392596, 0.23087204, 0.21450997, 0.18572808, 0.15496396)
+  alive <- output_ex$n_alive_by_ctime_adi
+  copd  <- output_ex$n_COPD_by_ctime_adi
 
-  rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
-    copd_prop  <- copd[yr, ] / sum(copd[yr, ])
-    prev_ratio <- copd_prop / pop_prop
-    prev_ratio / prev_ratio[1]
+  rr <- t(sapply(seq_len(time_horizon), function(yr) {
+    prev_rate <- copd[yr, ] / alive[yr, ]
+    prev_rate / prev_rate[1]
   }))
-  colnames(rr_mat) <- quintile_labels
-  df_rr      <- as.data.frame(rr_mat)
+  colnames(rr) <- quintile_labels
+  df_rr      <- as.data.frame(rr)
   df_rr$year <- years
 
   df_rr_long <- reshape2::melt(df_rr, id.vars = "year",
@@ -2944,15 +2941,15 @@ validate_adi <- function(n_sim = 1e6) {
   plot(p3)
 
   # ---- Plot 4: COPD incidence rate ratio relative to Q1 by year ----
-  irr_mat <- t(sapply(2:time_horizon, function(yr) {
+  irr <- t(sapply(2:time_horizon, function(yr) {
     at_risk  <- alive[yr - 1, ] - copd[yr - 1, ]
     incident <- pmax(copd[yr, ] - copd[yr - 1, ], 0)
     if (any(at_risk < 500)) return(rep(NA_real_, 5))
     irr      <- (incident / at_risk) / (incident[1] / at_risk[1])
     irr
   }))
-  colnames(irr_mat) <- quintile_labels
-  df_irr      <- as.data.frame(irr_mat)
+  colnames(irr) <- quintile_labels
+  df_irr      <- as.data.frame(irr)
   df_irr$year <- years[-1]
 
   df_irr_long <- reshape2::melt(df_irr, id.vars = "year",
