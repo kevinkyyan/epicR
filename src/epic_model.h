@@ -182,6 +182,7 @@ struct input {
     double logit_p_COPD_betas_by_sex[7][2];
     double ln_h_COPD_betas_by_sex[7][2];
     double p_adi_quintiles_incident_COPD[5];  // ADI quintile weights for incident COPD agents, derived from adi_ln_h_COPD_multipliers via Bayes theorem (Q1=least deprived)
+    double adi_h_COPD_factors[5];             // Mean-centred prevalence hazard multipliers by ADI quintile; sum(pop_prop * factors) = 1
   } COPD;
 
   struct {

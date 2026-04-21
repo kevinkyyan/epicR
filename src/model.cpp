@@ -932,7 +932,7 @@ if(id<settings.n_base_agents)
     }
 
 
-// ========== STEP 4: Height and Weight Assignment ==========
+// ========== STEP 3: Height and Weight Assignment ==========
     // Uses bivariate normal for correlated height/weight
     rbvnorm(input.agent.height_weight_rho,_bvn);
   (*ag).height=_bvn[0]*input.agent.height_0_sd
@@ -951,7 +951,7 @@ if(id<settings.n_base_agents)
   +input.agent.weight_0_betas[5]*(*ag).height
   +input.agent.weight_0_betas[6]*calendar_time;
 
-  // ========== STEP 5: Smoking Status Assignment ==========
+  // ========== STEP 4: Smoking Status Assignment ==========
   bool ever_smoker=false;
 
   double odds1=exp(input.smoking.logit_p_current_smoker_0_betas[0]
@@ -1008,7 +1008,7 @@ if(id<settings.n_base_agents)
   (*ag).smoking_status_LPT=0;
 
 
-  // ========== STEP 6: Exacerbation Random Effects ==========
+  // ========== STEP 5: Exacerbation Random Effects ==========
   rbvnorm(input.exacerbation.rate_severity_intercept_rho,_bvn);
   (*ag).ln_exac_rate_intercept=_bvn[0]*input.exacerbation.ln_rate_intercept_sd;
   (*ag).logit_exac_severity_intercept=_bvn[1]*input.exacerbation.logit_severity_intercept_sd;
@@ -1034,6 +1034,18 @@ if(id<settings.n_base_agents)
   (*ag).exac_history_n_severe_plus=0;
 
 
+  // ========== STEP 6: ADI Quintile Assignment ==========
+  // Assigned before COPD status: neighbourhood determines COPD risk, not vice versa.
+  {
+    double r_adi = rand_unif();
+    double cum_adi = 0;
+    (*ag).adi_quintile = 5;
+    for (int q = 0; q < 5; q++) {
+      cum_adi += input.agent.p_adi_quintiles[q];
+      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
+    }
+  }
+
   // ========== STEP 7: COPD Status (Prevalent Agents Only) ==========
   // Calculate probability of COPD based on risk factors
   double COPD_odds=exp(input.COPD.logit_p_COPD_betas_by_sex[0][(*ag).sex]
@@ -1045,9 +1057,10 @@ if(id<settings.n_base_agents)
                          //+input.COPD.logit_p_COPD_betas_by_sex[7]*(*ag).asthma
                          ;
 
-  (*ag).p_COPD=COPD_odds/(1+COPD_odds);
+  (*ag).p_COPD = (COPD_odds/(1+COPD_odds)) *
+                 input.COPD.adi_h_COPD_factors[(*ag).adi_quintile - 1];
 
-  if(rand_unif()<COPD_odds/(1+COPD_odds))
+  if(rand_unif() < (*ag).p_COPD)
   {
     (*ag).weight_baseline = (*ag).weight;
     (*ag).age_baseline = (*ag).local_time + (*ag).age_at_creation;
@@ -1109,28 +1122,6 @@ if(id<settings.n_base_agents)
     (*ag)._pred_fev1=0; //restarting _pred_fev1 for new people who don't have COPD
 
   }
-
-// ===== Area Deprivation Index (ADI) Quintile Assignment =====
-// Assigned after COPD status (gold) is known so different weights can be used
-// for COPD vs non-COPD agents.
-{
-  double r_adi = rand_unif();
-  double cum_adi = 0;
-  (*ag).adi_quintile = 5;  // fallback: if r_adi >= cumulative sum, assign Q5
-  if ((*ag).gold == 0) {
-    // Non-COPD agent: use general population weights
-    for (int q = 0; q < 5; q++) {
-      cum_adi += input.agent.p_adi_quintiles[q];
-      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
-    }
-  } else {
-    // COPD agent: use COPD-specific weights (placeholder — update in input.R)
-    for (int q = 0; q < 5; q++) {
-      cum_adi += input.agent.p_adi_quintiles_COPD[q];
-      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
-    }
-  }
-}
 
   //lung function;
   (*ag).lung_function_LPT=0;
