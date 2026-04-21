@@ -1034,8 +1034,20 @@ if(id<settings.n_base_agents)
   (*ag).exac_history_n_severe_plus=0;
 
 
+  // ========== STEP 6b: ADI Quintile Assignment ==========
+  // Assigned before COPD status: neighbourhood determines COPD risk, not vice versa.
+  {
+    double r_adi = rand_unif();
+    double cum_adi = 0;
+    (*ag).adi_quintile = 5;
+    for (int q = 0; q < 5; q++) {
+      cum_adi += input.agent.p_adi_quintiles[q];
+      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
+    }
+  }
+
   // ========== STEP 7: COPD Status (Prevalent Agents Only) ==========
-  // Calculate probability of COPD based on risk factors
+  // Calculate probability of COPD based on risk factors, scaled by ADI quintile.
   double COPD_odds=exp(input.COPD.logit_p_COPD_betas_by_sex[0][(*ag).sex]
                          +input.COPD.logit_p_COPD_betas_by_sex[1][(*ag).sex]*(*ag).age_at_creation
                          +input.COPD.logit_p_COPD_betas_by_sex[2][(*ag).sex]*(*ag).age_at_creation*(*ag).age_at_creation
@@ -1045,9 +1057,10 @@ if(id<settings.n_base_agents)
                          //+input.COPD.logit_p_COPD_betas_by_sex[7]*(*ag).asthma
                          ;
 
-  (*ag).p_COPD=COPD_odds/(1+COPD_odds);
+  (*ag).p_COPD = (COPD_odds/(1+COPD_odds)) *
+                 input.COPD.adi_h_COPD_factors[(*ag).adi_quintile - 1];
 
-  if(rand_unif()<COPD_odds/(1+COPD_odds))
+  if(rand_unif() < (*ag).p_COPD)
   {
     (*ag).weight_baseline = (*ag).weight;
     (*ag).age_baseline = (*ag).local_time + (*ag).age_at_creation;
@@ -1110,27 +1123,6 @@ if(id<settings.n_base_agents)
 
   }
 
-// ===== Area Deprivation Index (ADI) Quintile Assignment =====
-// Assigned after COPD status (gold) is known so different weights can be used
-// for COPD vs non-COPD agents.
-{
-  double r_adi = rand_unif();
-  double cum_adi = 0;
-  (*ag).adi_quintile = 5;  // fallback: if r_adi >= cumulative sum, assign Q5
-  if ((*ag).gold == 0) {
-    // Non-COPD agent: use general population weights
-    for (int q = 0; q < 5; q++) {
-      cum_adi += input.agent.p_adi_quintiles[q];
-      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
-    }
-  } else {
-    // COPD agent: use COPD-specific weights (placeholder — update in input.R)
-    for (int q = 0; q < 5; q++) {
-      cum_adi += input.agent.p_adi_quintiles_COPD[q];
-      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
-    }
-  }
-}
 
   //lung function;
   (*ag).lung_function_LPT=0;
