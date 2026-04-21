@@ -2899,12 +2899,12 @@ validate_adi <- function(n_sim = 1e6) {
   alive <- output_ex$n_alive_by_ctime_adi
   copd  <- output_ex$n_COPD_by_ctime_adi
 
-  rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
+  rr <- t(sapply(seq_len(time_horizon), function(yr) {
     prev_rate <- copd[yr, ] / alive[yr, ]
     prev_rate / prev_rate[1]
   }))
-  colnames(rr_mat) <- quintile_labels
-  df_rr      <- as.data.frame(rr_mat)
+  colnames(rr) <- quintile_labels
+  df_rr      <- as.data.frame(rr)
   df_rr$year <- years
 
   df_rr_long <- reshape2::melt(df_rr, id.vars = "year",
@@ -2939,3 +2939,6 @@ validate_adi <- function(n_sim = 1e6) {
       colour = "ADI Quintile"
     )
   plot(p3)
+
+  invisible(list(alive = df_alive_long, copd = df_copd_long, rr = df_rr_long))
+}
