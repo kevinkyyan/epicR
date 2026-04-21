@@ -2820,22 +2820,30 @@ terminate_session()
 
 #' Validate ADI distribution for the general and COPD population over time
 #'
-#' Plot (1) general population proportion by ADI quintile over a 45-year time horizon
-#' Plot (2) COPD prevalence rate (n_COPD / n_alive) by ADI quintile over the same horizon.
-#' Plot (3) For each ADI quintile, the relative rate of COPD compared to Q1
-#'   (least deprived) over time. Computed by dividing each quintile's share of
-#'   all COPD cases by its share of non-COPD individuals, then expressing the
-#'   result as a ratio to Q1. Dashed reference lines show the expected targets
-#'   from Hayes et al. 2024 (Q2=1.0, Q3=1.2, Q4=1.6, Q5=2.4), where a value
-#'   of 2.4 for Q5 means the most deprived group carries 2.4 times the COPD
-#'   burden of the least deprived.
+#' Plot (1) General population proportion by ADI quintile over a 45-year
+#'   time horizon.
+#' Plot (2) COPD prevalence rate (n_COPD / n_alive) by ADI quintile over the
+#'   same horizon.
+#' Plot (3) COPD prevalence ratio relative to Q1 by year. Computed as COPD
+#'   prevalence (n_COPD / n_alive) in each quintile divided by the same rate
+#'   in Q1. Dashed reference lines show Hayes et al. 2024 targets
+#'   (Q2=1.0, Q3=1.2, Q4=1.6, Q5=2.4), where 2.4 means individuals in the
+#'   most deprived quintile are 2.4 times as likely to have COPD as those in
+#'   the least deprived quintile.
 #' @param n_sim Number of base agents. Default is 1e6.
-#' @return Invisibly returns a list with the three data frames used for plotting.
+#' @return Invisibly returns a list with three data frames used for plotting:
+#'   alive, copd, rr.
 #' @export
 validate_adi <- function(n_sim = 1e6) {
-  message("validate_adi(): plotting population proportion and COPD prevalence by ADI quintile over 45 years.\n")
+  message(
+    "validate_adi(): plotting population proportion and COPD ",
+    "prevalence by ADI quintile over 45 years.\n"
+  )
 
-  results <- simulate(n_agents = n_sim, time_horizon = 45, extended_results = TRUE, jurisdiction = "us")
+  results <- simulate(
+    n_agents = n_sim, time_horizon = 45,
+    extended_results = TRUE, jurisdiction = "us"
+  )
   output_ex <- results$extended
 
   time_horizon <- nrow(output_ex$n_alive_by_ctime_adi)
@@ -2854,7 +2862,10 @@ validate_adi <- function(n_sim = 1e6) {
                                   variable.name = "ADI_quintile",
                                   value.name = "proportion")
 
-  p1 <- ggplot2::ggplot(df_alive_long, ggplot2::aes(x = year, y = proportion, colour = ADI_quintile)) +
+  p1 <- ggplot2::ggplot(
+    df_alive_long,
+    ggplot2::aes(x = year, y = proportion, colour = ADI_quintile)
+  ) +
     ggplot2::geom_line(linewidth = 0.8) +
     ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     ggplot2::expand_limits(y = 0) +
@@ -2880,7 +2891,10 @@ validate_adi <- function(n_sim = 1e6) {
                                  variable.name = "ADI_quintile",
                                  value.name = "copd_rate")
 
-  p2 <- ggplot2::ggplot(df_copd_long, ggplot2::aes(x = year, y = copd_rate, colour = ADI_quintile)) +
+  p2 <- ggplot2::ggplot(
+    df_copd_long,
+    ggplot2::aes(x = year, y = copd_rate, colour = ADI_quintile)
+  ) +
     ggplot2::geom_line(linewidth = 0.8) +
     ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     ggplot2::expand_limits(y = 0) +
@@ -2897,16 +2911,12 @@ validate_adi <- function(n_sim = 1e6) {
   plot(p2)
 
   # ---- Plot 3: COPD prevalence ratio relative to Q1 by year ----
-  # Denominator uses fixed neighbourhood population proportions (pi_q) matching
-  # the Hayes et al. definition: COPD cases / population in those neighbourhoods.
-  alive   <- output_ex$n_alive_by_ctime_adi
-  copd    <- output_ex$n_COPD_by_ctime_adi
-  pop_prop <- c(0.21392596, 0.23087204, 0.21450997, 0.18572808, 0.15496396)
+  alive <- output_ex$n_alive_by_ctime_adi
+  copd  <- output_ex$n_COPD_by_ctime_adi
 
   rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
-    copd_prop  <- copd[yr, ] / sum(copd[yr, ])
-    prev_ratio <- copd_prop / pop_prop
-    prev_ratio / prev_ratio[1]
+    prev_rate  <- copd[yr, ] / alive[yr, ]
+    prev_ratio
   }))
   colnames(rr_mat) <- quintile_labels
   df_rr      <- as.data.frame(rr_mat)
@@ -2947,4 +2957,3 @@ validate_adi <- function(n_sim = 1e6) {
 
   invisible(list(alive = df_alive_long, copd = df_copd_long, rr = df_rr_long))
 }
-
