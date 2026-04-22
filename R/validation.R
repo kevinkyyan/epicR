@@ -2941,11 +2941,12 @@ validate_adi <- function(n_sim = 1e6) {
   plot(p3)
 
   # ---- Plot 4: COPD incidence rate ratio relative to Q1 by year ----
+  incident_mat <- output_ex$n_inc_COPD_by_ctime_adi
   irr <- t(sapply(2:time_horizon, function(yr) {
     at_risk  <- alive[yr - 1, ] - copd[yr - 1, ]
-    incident <- pmax(copd[yr, ] - copd[yr - 1, ], 0)
+    incident_copd <- incident_mat[yr, ]
     if (any(at_risk < 500)) return(rep(NA_real_, 5))
-    irr      <- (incident / at_risk) / (incident[1] / at_risk[1])
+    irr      <- (incident_copd / at_risk) / (incident_copd[1] / at_risk[1])
     irr
   }))
   colnames(irr) <- quintile_labels

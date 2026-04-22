@@ -527,6 +527,7 @@ void event_COPD_process(agent *ag)
 #endif
 #if (OUTPUT_EX & OUTPUT_EX_COPD) > 0
            output_ex.n_inc_COPD_by_ctime_age[(int)floor((*ag).time_at_creation+(*ag).local_time)][(int)(floor((*ag).age_at_creation+(*ag).local_time))]+=1;
+           output_ex.n_inc_COPD_by_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=1;
 #endif
 }
 

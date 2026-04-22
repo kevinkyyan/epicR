@@ -425,6 +425,7 @@ struct output_ex {
   int n_COPD_by_ctime_sex[1000][2];
   int n_COPD_by_ctime_age[100][111];
   int n_inc_COPD_by_ctime_age[100][111];
+  int n_inc_COPD_by_ctime_adi[100][5];
   int n_COPD_by_ctime_severity[100][5];
   int n_COPD_by_age_sex[111][2];
   int n_Diagnosed_by_ctime_sex[1000][2];

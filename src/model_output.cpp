@@ -102,6 +102,7 @@ List get_output_ex()
   out["n_COPD_by_ctime_sex"]=AS_MATRIX_INT_SIZE(output_ex.n_COPD_by_ctime_sex,input.global_parameters.time_horizon),
     out["n_COPD_by_ctime_age"]=AS_MATRIX_INT_SIZE(output_ex.n_COPD_by_ctime_age,input.global_parameters.time_horizon),
     out["n_inc_COPD_by_ctime_age"]=AS_MATRIX_INT_SIZE(output_ex.n_inc_COPD_by_ctime_age,input.global_parameters.time_horizon),
+    out["n_inc_COPD_by_ctime_adi"]=AS_MATRIX_INT_SIZE(output_ex.n_inc_COPD_by_ctime_adi,input.global_parameters.time_horizon),
     out["n_COPD_by_ctime_severity"]=AS_MATRIX_INT_SIZE(output_ex.n_COPD_by_ctime_severity,input.global_parameters.time_horizon),
     out["n_COPD_by_age_sex"]=AS_MATRIX_INT(output_ex.n_COPD_by_age_sex),
     out["n_Diagnosed_by_ctime_sex"]=AS_MATRIX_INT_SIZE(output_ex.n_Diagnosed_by_ctime_sex,input.global_parameters.time_horizon),
