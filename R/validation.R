@@ -2915,8 +2915,8 @@ validate_adi <- function(n_sim = 1e6) {
   copd  <- output_ex$n_COPD_by_ctime_adi
 
   rr_mat <- t(sapply(seq_len(time_horizon), function(yr) {
-    prev_rate  <- copd[yr, ] / alive[yr, ]
-    prev_ratio
+    prev_rate <- copd[yr, ] / alive[yr, ]
+    prev_rate / prev_rate[1]
   }))
   colnames(rr_mat) <- quintile_labels
   df_rr      <- as.data.frame(rr_mat)
