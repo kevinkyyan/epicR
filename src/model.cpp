@@ -932,7 +932,7 @@ if(id<settings.n_base_agents)
     }
 
 
-// ========== STEP 4: Height and Weight Assignment ==========
+// ========== STEP 3: Height and Weight Assignment ==========
     // Uses bivariate normal for correlated height/weight
     rbvnorm(input.agent.height_weight_rho,_bvn);
   (*ag).height=_bvn[0]*input.agent.height_0_sd
@@ -951,7 +951,7 @@ if(id<settings.n_base_agents)
   +input.agent.weight_0_betas[5]*(*ag).height
   +input.agent.weight_0_betas[6]*calendar_time;
 
-  // ========== STEP 5: Smoking Status Assignment ==========
+  // ========== STEP 4: Smoking Status Assignment ==========
   bool ever_smoker=false;
 
   double odds1=exp(input.smoking.logit_p_current_smoker_0_betas[0]
@@ -1008,7 +1008,7 @@ if(id<settings.n_base_agents)
   (*ag).smoking_status_LPT=0;
 
 
-  // ========== STEP 6: Exacerbation Random Effects ==========
+  // ========== STEP 5: Exacerbation Random Effects ==========
   rbvnorm(input.exacerbation.rate_severity_intercept_rho,_bvn);
   (*ag).ln_exac_rate_intercept=_bvn[0]*input.exacerbation.ln_rate_intercept_sd;
   (*ag).logit_exac_severity_intercept=_bvn[1]*input.exacerbation.logit_severity_intercept_sd;
@@ -1034,7 +1034,7 @@ if(id<settings.n_base_agents)
   (*ag).exac_history_n_severe_plus=0;
 
 
-  // ========== STEP 6b: ADI Quintile Assignment ==========
+  // ========== STEP 6: ADI Quintile Assignment ==========
   // Assigned before COPD status: neighbourhood determines COPD risk, not vice versa.
   {
     double r_adi = rand_unif();
