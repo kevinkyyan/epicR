@@ -951,7 +951,19 @@ if(id<settings.n_base_agents)
   +input.agent.weight_0_betas[5]*(*ag).height
   +input.agent.weight_0_betas[6]*calendar_time;
 
-  // ========== STEP 4: Smoking Status Assignment ==========
+  // ========== STEP 4: ADI Quintile Assignment ==========
+  // Assigned before smoking: neighbourhood determines smoking risk, not vice versa.
+  {
+    double r_adi = rand_unif();
+    double cum_adi = 0;
+    (*ag).adi_quintile = 5;
+    for (int q = 0; q < 5; q++) {
+      cum_adi += input.agent.p_adi_quintiles[q];
+      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
+    }
+  }
+
+  // ========== STEP 5: Smoking Status Assignment ==========
   bool ever_smoker=false;
 
   double odds1=exp(input.smoking.logit_p_current_smoker_0_betas[0]
@@ -963,7 +975,8 @@ if(id<settings.n_base_agents)
                      +input.smoking.logit_p_current_smoker_0_betas[6]*calendar_time
   );
 
-  double temp = max(input.smoking.minimum_smoking_prevalence,(odds1/(1+odds1)));
+  double temp = max(input.smoking.minimum_smoking_prevalence,(odds1/(1+odds1))) *
+                input.smoking.adi_h_smoking_factors[(*ag).adi_quintile - 1];
 
   if(rand_unif() < temp) //adding a minimum baseline smoking prevalence. ever smoker
   {
@@ -1034,19 +1047,7 @@ if(id<settings.n_base_agents)
   (*ag).exac_history_n_severe_plus=0;
 
 
-  // ========== STEP 6: ADI Quintile Assignment ==========
-  // Assigned before COPD status: neighbourhood determines COPD risk, not vice versa.
-  {
-    double r_adi = rand_unif();
-    double cum_adi = 0;
-    (*ag).adi_quintile = 5;
-    for (int q = 0; q < 5; q++) {
-      cum_adi += input.agent.p_adi_quintiles[q];
-      if (r_adi < cum_adi) { (*ag).adi_quintile = q + 1; break; }
-    }
-  }
-
-  // ========== STEP 7: COPD Status (Prevalent Agents Only) ==========
+  // ========== STEP 6: COPD Status (Prevalent Agents Only) ==========
   // Calculate probability of COPD based on risk factors, scaled by ADI quintile.
   double COPD_odds=exp(input.COPD.logit_p_COPD_betas_by_sex[0][(*ag).sex]
                          +input.COPD.logit_p_COPD_betas_by_sex[1][(*ag).sex]*(*ag).age_at_creation
@@ -1058,7 +1059,7 @@ if(id<settings.n_base_agents)
                          ;
 
   (*ag).p_COPD = (COPD_odds/(1+COPD_odds)) *
-                 input.COPD.adi_h_COPD_factors[(*ag).adi_quintile - 1];
+                 input.COPD.adi_prev_COPD_factors[(*ag).adi_quintile - 1];
 
   if(rand_unif() < (*ag).p_COPD)
   {

@@ -41,8 +41,7 @@ List get_inputs()
       Rcpp::Named("l_inc_betas")=AS_VECTOR_DOUBLE(input.agent.l_inc_betas),
       Rcpp::Named("ln_h_bgd_betas")=AS_VECTOR_DOUBLE(input.agent.ln_h_bgd_betas),
 
-      Rcpp::Named("p_adi_quintiles")=AS_VECTOR_DOUBLE(input.agent.p_adi_quintiles),
-      Rcpp::Named("p_adi_quintiles_COPD")=AS_VECTOR_DOUBLE(input.agent.p_adi_quintiles_COPD)
+      Rcpp::Named("p_adi_quintiles")=AS_VECTOR_DOUBLE(input.agent.p_adi_quintiles)
 
     ),
     Rcpp::Named("smoking")=Rcpp::List::create(
@@ -56,7 +55,8 @@ List get_inputs()
       Rcpp::Named("mortality_factor_former")=AS_VECTOR_DOUBLE(input.smoking.mortality_factor_former),
       Rcpp::Named("ln_h_ces_betas")=AS_VECTOR_DOUBLE(input.smoking.ln_h_ces_betas),
       Rcpp::Named("smoking_ces_coefficient")=input.smoking.smoking_ces_coefficient,
-      Rcpp::Named("smoking_cessation_adherence")=input.smoking.smoking_cessation_adherence
+      Rcpp::Named("smoking_cessation_adherence")=input.smoking.smoking_cessation_adherence,
+      Rcpp::Named("adi_h_smoking_factors")=AS_VECTOR_DOUBLE(input.smoking.adi_h_smoking_factors)
     ),
     Rcpp::Named("COPD")=Rcpp::List::create(
       Rcpp::Named("ln_h_COPD_betas_by_sex")=AS_MATRIX_DOUBLE(input.COPD.ln_h_COPD_betas_by_sex),
@@ -178,7 +178,6 @@ int set_input_var(std::string name, NumericVector value)
   if(name=="agent$ln_h_bgd_betas") READ_R_VECTOR(value,input.agent.ln_h_bgd_betas);
 
   if(name=="agent$p_adi_quintiles") READ_R_VECTOR(value,input.agent.p_adi_quintiles);
-  if(name=="agent$p_adi_quintiles_COPD") READ_R_VECTOR(value,input.agent.p_adi_quintiles_COPD);
 
   if(name=="smoking$logit_p_current_smoker_0_betas") READ_R_VECTOR(value,input.smoking.logit_p_current_smoker_0_betas);
   if(name=="smoking$logit_p_never_smoker_con_not_current_0_betas") READ_R_VECTOR(value,input.smoking.logit_p_never_smoker_con_not_current_0_betas);
@@ -191,10 +190,11 @@ int set_input_var(std::string name, NumericVector value)
   if(name=="smoking$ln_h_ces_betas") READ_R_VECTOR(value,input.smoking.ln_h_ces_betas);
   if(name=="smoking$smoking_ces_coefficient") {input.smoking.smoking_ces_coefficient=value[0]; return(0);}
   if(name=="smoking$smoking_cessation_adherence") {input.smoking.smoking_cessation_adherence=value[0]; return(0);}
+  if(name=="smoking$adi_h_smoking_factors") READ_R_VECTOR(value,input.smoking.adi_h_smoking_factors);
 
   if(name=="COPD$ln_h_COPD_betas_by_sex") READ_R_MATRIX(value,input.COPD.ln_h_COPD_betas_by_sex);
   if(name=="COPD$logit_p_COPD_betas_by_sex") READ_R_MATRIX(value,input.COPD.logit_p_COPD_betas_by_sex);
-  if(name=="COPD$adi_h_COPD_factors") READ_R_VECTOR(value,input.COPD.adi_h_COPD_factors);
+  if(name=="COPD$adi_prev_COPD_factors") READ_R_VECTOR(value,input.COPD.adi_prev_COPD_factors);
 
   if(name=="lung_function$pred_fev1_betas_by_sex") READ_R_MATRIX(value,input.lung_function.pred_fev1_betas_by_sex);
   if(name=="lung_function$fev1_0_prev_betas_by_sex") READ_R_MATRIX(value,input.lung_function.fev1_0_prev_betas_by_sex);

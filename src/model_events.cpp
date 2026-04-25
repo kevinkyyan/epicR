@@ -392,6 +392,7 @@ double event_smoking_change_tte(agent *ag)
 
 
   double tte=rand_exp()/rate;
+  if((*ag).smoking_status==0) tte /= input.smoking.adi_h_smoking_factors[(*ag).adi_quintile - 1];
 
   return(tte);
 }
@@ -440,7 +441,7 @@ double event_COPD_tte(agent *ag)
   if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate;
   //return(HUGE_VAL);
   return(tte);
-}
+}d
 
 
 
