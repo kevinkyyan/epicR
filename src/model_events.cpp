@@ -441,7 +441,7 @@ double event_COPD_tte(agent *ag)
   if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate;
   //return(HUGE_VAL);
   return(tte);
-}d
+}
 
 
 
