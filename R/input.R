@@ -251,17 +251,6 @@ get_input <- function(age0 = 40,
   } else rep(0.2, 5)  # equal distribution across quintiles if not specified
   input_ref$agent$p_adi_quintiles <- get_metadata("agent", "p_adi_quintiles", "ref", "")
 
-  input_help$agent$p_adi_quintiles_COPD <- "ADI quintile weights for prevalent COPD agents, derived from adi_p_COPD_multipliers and p_adi_quintiles via Bayes theorem. Reflects higher ADI burden among COPD agents while preserving overall COPD calibration."
-  input$agent$p_adi_quintiles_COPD <- {
-    if (!is.null(config$COPD$adi_p_COPD_multipliers)) {
-      adi_copd_quintile_weights <- convert_config_value(config$COPD$adi_p_COPD_multipliers) * input$agent$p_adi_quintiles
-      adi_copd_quintile_weights / sum(adi_copd_quintile_weights)
-    } else {
-      input$agent$p_adi_quintiles  # no ADI multipliers: COPD distribution = general population
-    }
-  }
-  input_ref$agent$p_adi_quintiles_COPD <- get_metadata("COPD", "adi_p_COPD_multipliers", "ref", "")
-
   ### smoking;
 
   input_help$smoking$logit_p_current_smoker_0_betas <- get_metadata("smoking", "logit_p_current_smoker_0_betas", "help", "Probability of being a current smoker at the time of creation")
@@ -334,12 +323,12 @@ get_input <- function(age0 = 40,
   input$COPD$ln_h_COPD_betas_by_sex <- create_matrix_from_config(config$COPD$ln_h_COPD_betas_by_sex, transpose = FALSE)
   input_ref$COPD$ln_h_COPD_betas_by_sex <- get_metadata("COPD", "ln_h_COPD_betas_by_sex", "ref", "Amin's Iterative solution. Last Updated on 2022-06-33 (0.29.0)")
 
-  input_help$COPD$adi_h_COPD_factors <- get_metadata("COPD", "adi_ln_h_COPD_multipliers", "help", "Mean-centred hazard multipliers by ADI quintile for incident COPD. Applied as post-hoc TTE scaling: tte = rand_exp()/rate/factor. Derived from adi_ln_h_COPD_multipliers normalised by population-weighted mean.")
-  input$COPD$adi_h_COPD_factors <- if (!is.null(config$COPD$adi_ln_h_COPD_multipliers)) {
-    raw_multipliers <- convert_config_value(config$COPD$adi_ln_h_COPD_multipliers)
+  input_help$COPD$adi_prev_COPD_factors <- get_metadata("COPD", "adi_prev_COPD_rr", "help", "Mean-centred prevalence multipliers by ADI quintile for prevalent COPD. Derived from adi_prev_COPD_rr normalised by population-weighted mean.")
+  input$COPD$adi_prev_COPD_factors <- if (!is.null(config$COPD$adi_prev_COPD_rr)) {
+    raw_multipliers <- convert_config_value(config$COPD$adi_prev_COPD_rr)
     raw_multipliers / sum(input$agent$p_adi_quintiles * raw_multipliers)
   } else rep(1.0, 5)
-  input_ref$COPD$adi_h_COPD_factors <- get_metadata("COPD", "adi_ln_h_COPD_multipliers", "ref", "ADI National Ranking by Quintile table — observed diagnosed COPD prevalence Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12")
+  input_ref$COPD$adi_prev_COPD_factors <- get_metadata("COPD", "adi_prev_COPD_rr", "ref", "ADI National Ranking by Quintile table — observed diagnosed COPD prevalence Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12")
 
 
   ## Lung function

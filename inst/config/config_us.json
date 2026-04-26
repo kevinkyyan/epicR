@@ -158,11 +158,6 @@
       "help": "Logit of the probability of having COPD (FEV1/FVC<0.7) at time of creation (separately by sex)",
       "ref": "Adapted to US setting (July 22, 2025). CanCold - Shahzad's Derivation."
     },
-    "adi_p_COPD_multipliers": [1.0, 1.0, 1.2, 1.6, 2.4],
-    "adi_p_COPD_multipliers_metadata": {
-      "help": "Relative diagnosed COPD prevalence by ADI quintile (Q1=least deprived, reference=1.0). Used with p_adi_quintiles via Bayes theorem to compute p_adi_quintiles_COPD in input.R.",
-      "ref": "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%. Ratios relative to Q1."
-    },
     "ln_h_COPD_betas_by_sex": {
       "male": [-7.62659032, 0.03116591, 0, 0.0276946, 0, 0, 0],
       "female": [-8.39537000, 0.03608233, 0, 0.04033863, 0, 0, 0]
@@ -171,9 +166,9 @@
       "help": "Log-hazard of developing COPD (FEV1/FVC<LLN) for those who did not have COPD at creation time (separately by sex)",
       "ref": "Amin's Iterative solution. Last Updated on 2022-06-33 (0.29.0)"
     },
-    "adi_ln_h_COPD_multipliers": [1.0, 1.0, 1.2, 1.6, 2.4],
-    "adi_ln_h_COPD_multipliers_metadata": {
-      "help": "Relative incident COPD hazard by ADI quintile (Q1=least deprived, reference=1.0). Used with p_adi_quintiles via Bayes theorem to compute p_adi_quintiles_incident_COPD in input.R.",
+    "adi_prev_COPD_rr": [1.0, 1.0, 1.2, 1.6, 2.4],
+    "adi_prev_COPD_rr_metadata": {
+      "help": "Relative diagnosed COPD prevalence by ADI quintile (Q1=least deprived, reference=1.0). Mean-centred in input.R before use.",
       "ref": "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%. Ratios relative to Q1."
     }
   },

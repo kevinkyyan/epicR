@@ -161,7 +161,6 @@ struct input {
     double p_bgd_by_sex[111][2];
     double ln_h_bgd_betas[9];
     double p_adi_quintiles[5];       // ADI quintile weights for non-COPD agents (Q1=least deprived)
-    double p_adi_quintiles_COPD[5];  // ADI quintile weights for prevalent COPD agents — placeholder, update in input.R
   } agent;
 
   struct {
@@ -181,7 +180,7 @@ struct input {
   struct {
     double logit_p_COPD_betas_by_sex[7][2];
     double ln_h_COPD_betas_by_sex[7][2];
-    double adi_h_COPD_factors[5];             // mean-centred hazard multipliers by ADI quintile for incident COPD. Applied as TTE scaling: tte = rand_exp()/rate/factor (Q1=least deprived)
+    double adi_prev_COPD_factors[5];          // mean-centred prevalence multipliers by ADI quintile for prevalent COPD (Q1=least deprived)
   } COPD;
 
   struct {
