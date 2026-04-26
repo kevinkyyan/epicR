@@ -330,6 +330,13 @@ get_input <- function(age0 = 40,
   } else rep(1.0, 5)
   input_ref$COPD$adi_prev_COPD_factors <- get_metadata("COPD", "adi_prev_COPD_rr", "ref", "ADI National Ranking by Quintile table — observed diagnosed COPD prevalence Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12")
 
+  input_help$COPD$adi_inc_COPD_factors <- get_metadata("COPD", "adi_inc_COPD_rr", "help", "Mean-centred incidence multipliers by ADI quintile for incident COPD. Derived from adi_inc_COPD_rr normalised by population-weighted mean.")
+  input$COPD$adi_inc_COPD_factors <- if (!is.null(config$COPD$adi_inc_COPD_rr)) {
+    raw_multipliers <- convert_config_value(config$COPD$adi_inc_COPD_rr)
+    raw_multipliers / sum(input$agent$p_adi_quintiles * raw_multipliers)
+  } else rep(1.0, 5)
+  input_ref$COPD$adi_inc_COPD_factors <- get_metadata("COPD", "adi_inc_COPD_rr", "ref", "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile used as proxy for incidence RR: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%.")
+
 
   ## Lung function
   input_help$lung_function$fev1_0_prev_betas_by_sex <- get_metadata("lung_function", "fev1_0_prev_betas_by_sex", "help", "Regression (OLS) coefficients for mean of FEV1 at time of creation for those with COPD (separately by sex)")

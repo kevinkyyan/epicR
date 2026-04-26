@@ -170,6 +170,11 @@
     "adi_prev_COPD_rr_metadata": {
       "help": "Relative diagnosed COPD prevalence by ADI quintile (Q1=least deprived, reference=1.0). Mean-centred in input.R before use.",
       "ref": "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%. Ratios relative to Q1."
+    },
+    "adi_inc_COPD_rr": [1.0, 1.0, 1.2, 1.6, 2.4],
+    "adi_inc_COPD_rr_metadata": {
+      "help": "Relative incident COPD hazard by ADI quintile (Q1=least deprived, reference=1.0). Mean-centred in input.R before use. Applied as TTE scaling: tte = rand_exp()/rate/factor.",
+      "ref": "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile used as proxy for incidence RR: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%. Ratios relative to Q1."
     }
   },
   "lung_function": {

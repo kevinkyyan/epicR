@@ -181,6 +181,7 @@ struct input {
     double logit_p_COPD_betas_by_sex[7][2];
     double ln_h_COPD_betas_by_sex[7][2];
     double adi_prev_COPD_factors[5];          // mean-centred prevalence multipliers by ADI quintile for prevalent COPD (Q1=least deprived)
+    double adi_inc_COPD_factors[5];           // mean-centred incidence multipliers by ADI quintile for incident COPD (Q1=least deprived)
   } COPD;
 
   struct {

@@ -437,7 +437,7 @@ double event_COPD_tte(agent *ag)
   );
 
   double tte;
-  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate;
+  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate/input.COPD.adi_inc_COPD_factors[(*ag).adi_quintile - 1];
   //return(HUGE_VAL);
   return(tte);
 }
