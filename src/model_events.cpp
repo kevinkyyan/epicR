@@ -566,7 +566,7 @@ double event_exacerbation_tte(agent *ag)
 
   double tte;
 
-  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate;
+  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate/input.exacerbation.adi_exac_factors[(*ag).adi_quintile-1];
 
   return(tte);
 }

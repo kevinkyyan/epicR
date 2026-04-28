@@ -222,6 +222,7 @@ struct input {
     double exac_end_rate[4];
     double p_death[4];
     double logit_p_death_by_sex[7][2];
+    double adi_exac_factors[5];
   } exacerbation;
 
   struct {

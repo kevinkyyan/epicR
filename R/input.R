@@ -427,6 +427,12 @@ get_input <- function(age0 = 40,
   input$exacerbation$logit_p_death_by_sex <- create_matrix_from_config(config$exacerbation$logit_p_death_by_sex, transpose = FALSE)
   input_ref$exacerbation$logit_p_death_by_sex <- get_metadata("exacerbation", "logit_p_death_by_sex", "ref", "")
 
+  # ADI exacerbation multipliers (Galiatsatos 2020, Table 2: Q5/Q1 IRR = 1.56)
+  # ADI national rank 0-100; quintile midpoints 10,30,50,70,90; log-linear slope anchored to Q5/Q1
+  adi_exac_beta <- log(1.56) / (90 - 10)
+  adi_exac_raw  <- exp(adi_exac_beta * (c(10, 30, 50, 70, 90) - 10))
+  input$exacerbation$adi_exac_factors <- adi_exac_raw / sum(input$agent$p_adi_quintiles * adi_exac_raw)
+
   ## Symptoms;
 
   # cough;

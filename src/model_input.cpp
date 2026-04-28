@@ -214,6 +214,7 @@ int set_input_var(std::string name, NumericVector value)
   if(name=="exacerbation$rate_severity_intercept_rho") {input.exacerbation.rate_severity_intercept_rho=value[0]; return(0);}
   if(name=="exacerbation$exac_end_rate") READ_R_VECTOR(value,input.exacerbation.exac_end_rate);
   if(name=="exacerbation$logit_p_death_by_sex") READ_R_MATRIX(value,input.exacerbation.logit_p_death_by_sex);
+  if(name=="exacerbation$adi_exac_factors") READ_R_VECTOR(value,input.exacerbation.adi_exac_factors);
 
   if(name=="symptoms$logit_p_cough_COPD_by_sex") READ_R_MATRIX(value,input.symptoms.logit_p_cough_COPD_by_sex);
   if(name=="symptoms$logit_p_cough_nonCOPD_by_sex") READ_R_MATRIX(value,input.symptoms.logit_p_cough_nonCOPD_by_sex);
