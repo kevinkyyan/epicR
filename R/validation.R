@@ -2940,48 +2940,42 @@ validate_adi <- function(n_sim = 1e6) {
     )
   plot(p3)
 
-  # ---- Plot 4: COPD incidence rate ratio relative to Q1 by year ----
-  incident_mat <- output_ex$n_inc_COPD_by_ctime_adi
-  irr <- t(sapply(2:time_horizon, function(yr) {
-    at_risk  <- alive[yr - 1, ] - copd[yr - 1, ]
-    incident_copd <- incident_mat[yr, ]
-    if (any(at_risk < 500)) return(rep(NA_real_, 5))
-    irr      <- (incident_copd / at_risk) / (incident_copd[1] / at_risk[1])
-    irr
-  }))
-  colnames(irr) <- quintile_labels
-  df_irr      <- as.data.frame(irr)
-  df_irr$year <- years[-1]
+  # ---- Plot 4: Cumulative incident COPD rate ratio relative to Q1 ----
+  at_risk_total <- colSums(alive - copd)
+  inc_total     <- colSums(output_ex$n_inc_COPD_by_ctime_adi)
+  cum_rate      <- inc_total / at_risk_total
+  cum_irr       <- cum_rate / cum_rate[1]
 
-  df_irr_long <- reshape2::melt(df_irr, id.vars = "year",
-                                variable.name = "ADI_quintile",
-                                value.name = "irr")
+  df_irr <- data.frame(
+    ADI_quintile = factor(quintile_labels, levels = quintile_labels),
+    irr          = cum_irr,
+    expected     = c(1.0, 1.0, 1.2, 1.6, 2.4)
+  )
 
-  p4 <- ggplot2::ggplot(
-    df_irr_long,
-    ggplot2::aes(x = year, y = irr, colour = ADI_quintile)
+  p4 <- ggplot2::ggplot(df_irr,
+    ggplot2::aes(x = ADI_quintile, y = irr, fill = ADI_quintile)
   ) +
-    ggplot2::geom_line(linewidth = 0.8) +
-    ggplot2::geom_hline(
-      data = benchmarks,
-      ggplot2::aes(yintercept = expected, colour = ADI_quintile),
-      linetype = "dashed", linewidth = 0.4
+    ggplot2::geom_col(width = 0.6) +
+    ggplot2::geom_point(
+      ggplot2::aes(y = expected),
+      shape = 18, size = 4, colour = "black"
     ) +
     ggplot2::expand_limits(y = 0) +
     ggplot2::theme_bw() +
     ggplot2::theme(
-      plot.title = ggplot2::element_text(hjust = 0.5),
-      panel.grid = ggplot2::element_blank()
+      plot.title  = ggplot2::element_text(hjust = 0.5),
+      panel.grid  = ggplot2::element_blank(),
+      legend.position = "none"
     ) +
     ggplot2::labs(
-      title  = "COPD Incidence Rate Ratio Relative to Q1",
-      x      = "Year",
-      y      = "IRR vs Q1",
-      colour = "ADI Quintile"
+      title    = "Cumulative COPD Incidence Rate Ratio Relative to Q1",
+      subtitle = "Bars = observed (cumulative); diamonds = expected from adi_inc_COPD_rr",
+      x        = "ADI Quintile",
+      y        = "IRR vs Q1"
     )
   plot(p4)
 
   invisible(list(alive = df_alive_long, copd = df_copd_long,
-                 rr = df_rr_long, irr = df_irr_long))
+                 rr = df_rr_long, irr = df_irr))
 }
 
