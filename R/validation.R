@@ -2940,42 +2940,25 @@ validate_adi <- function(n_sim = 1e6) {
     )
   plot(p3)
 
-  # ---- Plot 4: Cumulative incident COPD rate ratio relative to Q1 ----
-  at_risk_total <- colSums(alive - copd)
+  # ---- Incident COPD assignment check ----
   inc_total     <- colSums(output_ex$n_inc_COPD_by_ctime_adi)
-  cum_rate      <- inc_total / at_risk_total
-  cum_irr       <- cum_rate / cum_rate[1]
+  at_risk_total <- colSums(alive - copd)
+  rate          <- inc_total / at_risk_total
+  ratio_vs_q1   <- rate / rate[1]
+  per_10_q1     <- round(10 * ratio_vs_q1, 1)
 
-  df_irr <- data.frame(
-    ADI_quintile = factor(quintile_labels, levels = quintile_labels),
-    irr          = cum_irr,
-    expected     = c(1.0, 1.0, 1.2, 1.6, 2.4)
+  inc_check <- data.frame(
+    quintile    = quintile_labels,
+    inc_events  = inc_total,
+    at_risk_yrs = round(at_risk_total),
+    ratio_vs_Q1 = round(ratio_vs_q1, 2),
+    per_10_Q1   = per_10_q1,
+    expected    = c(1.0, 1.0, 1.2, 1.6, 2.4)
   )
-
-  p4 <- ggplot2::ggplot(df_irr,
-    ggplot2::aes(x = ADI_quintile, y = irr, fill = ADI_quintile)
-  ) +
-    ggplot2::geom_col(width = 0.6) +
-    ggplot2::geom_point(
-      ggplot2::aes(y = expected),
-      shape = 18, size = 4, colour = "black"
-    ) +
-    ggplot2::expand_limits(y = 0) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(
-      plot.title  = ggplot2::element_text(hjust = 0.5),
-      panel.grid  = ggplot2::element_blank(),
-      legend.position = "none"
-    ) +
-    ggplot2::labs(
-      title    = "Cumulative COPD Incidence Rate Ratio Relative to Q1",
-      subtitle = "Bars = observed (cumulative); diamonds = expected from adi_inc_COPD_rr",
-      x        = "ADI Quintile",
-      y        = "IRR vs Q1"
-    )
-  plot(p4)
+  message("\nFor every 10 incident COPD cases in Q1:")
+  print(inc_check, row.names = FALSE)
 
   invisible(list(alive = df_alive_long, copd = df_copd_long,
-                 rr = df_rr_long, irr = df_irr))
+                 rr = df_rr_long, inc_check = inc_check))
 }
 
