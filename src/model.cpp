@@ -1058,7 +1058,7 @@ if(id<settings.n_base_agents)
                          ;
 
   (*ag).p_COPD = (COPD_odds/(1+COPD_odds)) *
-                 input.COPD.adi_prev_COPD_factors[(*ag).adi_quintile - 1];
+                 input.COPD.adi_prev_COPD_rr_norm[(*ag).adi_quintile - 1];
 
   if(rand_unif() < (*ag).p_COPD)
   {

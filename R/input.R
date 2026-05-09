@@ -323,19 +323,19 @@ get_input <- function(age0 = 40,
   input$COPD$ln_h_COPD_betas_by_sex <- create_matrix_from_config(config$COPD$ln_h_COPD_betas_by_sex, transpose = FALSE)
   input_ref$COPD$ln_h_COPD_betas_by_sex <- get_metadata("COPD", "ln_h_COPD_betas_by_sex", "ref", "Amin's Iterative solution. Last Updated on 2022-06-33 (0.29.0)")
 
-  input_help$COPD$adi_prev_COPD_factors <- get_metadata("COPD", "adi_prev_COPD_rr", "help", "Mean-centred prevalence multipliers by ADI quintile for prevalent COPD. Derived from adi_prev_COPD_rr normalised by population-weighted mean.")
-  input$COPD$adi_prev_COPD_factors <- if (!is.null(config$COPD$adi_prev_COPD_rr)) {
+  input_help$COPD$adi_prev_COPD_rr_norm <- get_metadata("COPD", "adi_prev_COPD_rr", "help", "Mean-centred prevalence multipliers by ADI quintile for prevalent COPD. Derived from adi_prev_COPD_rr normalised by population-weighted mean.")
+  input$COPD$adi_prev_COPD_rr_norm <- if (!is.null(config$COPD$adi_prev_COPD_rr)) {
     raw_multipliers <- convert_config_value(config$COPD$adi_prev_COPD_rr)
     raw_multipliers / sum(input$agent$p_adi_quintiles * raw_multipliers)
   } else rep(1.0, 5)
-  input_ref$COPD$adi_prev_COPD_factors <- get_metadata("COPD", "adi_prev_COPD_rr", "ref", "ADI National Ranking by Quintile table — observed diagnosed COPD prevalence Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12")
+  input_ref$COPD$adi_prev_COPD_rr_norm <- get_metadata("COPD", "adi_prev_COPD_rr", "ref", "ADI National Ranking by Quintile table — observed diagnosed COPD prevalence Q1=0.05, Q2=0.05, Q3=0.06, Q4=0.08, Q5=0.12")
 
-  input_help$COPD$adi_inc_COPD_factors <- get_metadata("COPD", "adi_inc_COPD_rr", "help", "Mean-centred incidence multipliers by ADI quintile for incident COPD. Derived from adi_inc_COPD_rr normalised by population-weighted mean.")
-  input$COPD$adi_inc_COPD_factors <- if (!is.null(config$COPD$adi_inc_COPD_rr)) {
+  input_help$COPD$adi_inc_COPD_rr_norm <- get_metadata("COPD", "adi_inc_COPD_rr", "help", "Mean-centred incidence multipliers by ADI quintile for incident COPD. Derived from adi_inc_COPD_rr normalised by population-weighted mean.")
+  input$COPD$adi_inc_COPD_rr_norm <- if (!is.null(config$COPD$adi_inc_COPD_rr)) {
     raw_multipliers <- convert_config_value(config$COPD$adi_inc_COPD_rr)
     raw_multipliers / sum(input$agent$p_adi_quintiles * raw_multipliers)
   } else rep(1.0, 5)
-  input_ref$COPD$adi_inc_COPD_factors <- get_metadata("COPD", "adi_inc_COPD_rr", "ref", "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile used as proxy for incidence RR: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%.")
+  input_ref$COPD$adi_inc_COPD_rr_norm <- get_metadata("COPD", "adi_inc_COPD_rr", "ref", "Hayes et al. 2024 (AnnalsATS). Observed prevalence by quintile used as proxy for incidence RR: Q1=5%, Q2=5%, Q3=6%, Q4=8%, Q5=12%.")
 
 
   ## Lung function
@@ -428,10 +428,18 @@ get_input <- function(age0 = 40,
   input_ref$exacerbation$logit_p_death_by_sex <- get_metadata("exacerbation", "logit_p_death_by_sex", "ref", "")
 
   # ADI exacerbation multipliers (Galiatsatos 2020, Table 2: Q5/Q1 IRR = 1.56)
-  # ADI national rank 0-100; quintile midpoints 10,30,50,70,90; log-linear slope anchored to Q5/Q1
-  adi_exac_beta <- log(1.56) / (90 - 10)
-  adi_exac_raw  <- exp(adi_exac_beta * (c(10, 30, 50, 70, 90) - 10))
-  input$exacerbation$adi_exac_factors <- adi_exac_raw / sum(input$agent$p_adi_quintiles * adi_exac_raw)
+  # ADI national rank 0-100; quintile upper bounds 20,40,60,80,100; log-linear slope anchored to Q5/Q1
+  # Normalise by COPD population ADI distribution
+  adi_exac_beta <- log(1.56) / (100 - 20)
+  adi_exac_rr  <- exp(adi_exac_beta * (c(20, 40, 60, 80, 100) - 20))
+  copd_adi_weights <- input$agent$p_adi_quintiles *
+    input$COPD$adi_prev_COPD_rr_norm
+  input$exacerbation$adi_exac_rr_norm <- adi_exac_rr / sum(copd_adi_weights * adi_exac_rr)
+
+  # ADI exacerbation severity multipliers (Galiatsatos 2020: severe IRR Q5/Q1 = 2.02/1.56 = 1.295)
+  # Conditional RR applied to severe + very severe (levels 3+4) only
+  adi_exac_sev_rr <- exp(log(2.02 / 1.56) / (100 - 20) * (c(20, 40, 60, 80, 100) - 20))
+  input$exacerbation$adi_exac_sev_rr_norm <- adi_exac_sev_rr / sum(copd_adi_weights * adi_exac_sev_rr)
 
   ## Symptoms;
 

@@ -437,7 +437,7 @@ double event_COPD_tte(agent *ag)
   );
 
   double tte;
-  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate/input.COPD.adi_inc_COPD_factors[(*ag).adi_quintile - 1];
+  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate/input.COPD.adi_inc_COPD_rr_norm[(*ag).adi_quintile - 1];
   //return(HUGE_VAL);
   return(tte);
 }
@@ -566,7 +566,7 @@ double event_exacerbation_tte(agent *ag)
 
   double tte;
 
-  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate/input.exacerbation.adi_exac_factors[(*ag).adi_quintile-1];
+  if(rate==0) tte=HUGE_VAL; else tte=rand_exp()/rate/input.exacerbation.adi_exac_rr_norm[(*ag).adi_quintile-1];
 
   return(tte);
 }
@@ -594,7 +594,16 @@ void event_exacerbation_process(agent *ag)
   p1=1/(1+exp(-l1));
   p2=1/(1+exp(-l2))-1/(1+exp(-l1));
   p3=1/(1+exp(-l3))-1/(1+exp(-l2));
-  // no need for p4, as its value is determined as 1-(p1+p2+p3)
+
+  double p4          = 1.0 - p1 - p2 - p3;
+  double adi_sev_rr  = input.exacerbation.adi_exac_sev_rr_norm[(*ag).adi_quintile-1];
+  double p3_adj      = p3 * adi_sev_rr;
+  double p4_adj      = p4 * adi_sev_rr;
+  double p1_p2_adj   = 1.0 - p3_adj - p4_adj;
+  double scale       = p1_p2_adj / (p1 + p2);
+  p1 *= scale;
+  p2 *= scale;
+  p3  = p3_adj;
 
   double r=rand_unif();
 
