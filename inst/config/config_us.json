@@ -86,7 +86,7 @@
       "help": "Increased Longevity Over time and effect of other variables",
       "ref": "Calibration results from Ece"
     },
-    "p_adi_quintiles": [0.21392596, 0.23087204, 0.21450997, 0.18572808, 0.15496396],
+    "p_adi_quintiles": [0.2244665, 0.2340618, 0.2139154, 0.1837084, 0.1438479],
     "p_adi_quintiles_metadata": {
       "help": "Population-weighted probabilities for ADI (Area Deprivation Index) quintiles 1-5 at baseline. Quintile 1 = least deprived, Quintile 5 = most deprived.",
       "ref": "US General Population By ADI Quintiles (Neighborhood Atlas)"
