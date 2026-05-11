@@ -132,6 +132,10 @@ List get_output_ex()
     out["n_exac_by_ctime_sex"]=AS_MATRIX_INT_SIZE(output_ex.n_exac_by_ctime_sex,input.global_parameters.time_horizon);
     out["n_exac_by_ctime_adi"]=AS_MATRIX_INT_SIZE(output_ex.n_exac_by_ctime_adi,input.global_parameters.time_horizon);
     out["n_exac_severity_adi"]=AS_MATRIX_INT(output_ex.n_exac_severity_adi);
+    out["n_exac_by_ctime_adi_diagnosed"]=AS_MATRIX_INT_SIZE(output_ex.n_exac_by_ctime_adi_diagnosed,input.global_parameters.time_horizon);
+    out["n_exac_severity_adi_diagnosed"]=AS_MATRIX_INT(output_ex.n_exac_severity_adi_diagnosed);
+    out["n_exac_GOLD_adi"]=AS_MATRIX_INT(output_ex.n_exac_GOLD_adi);
+    out["n_exac_GOLD_adi_diagnosed"]=AS_MATRIX_INT(output_ex.n_exac_GOLD_adi_diagnosed);
 #endif
 
 #if (OUTPUT_EX & OUTPUT_EX_GPSYMPTOMS)>0

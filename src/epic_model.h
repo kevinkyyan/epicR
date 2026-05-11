@@ -456,6 +456,10 @@ struct output_ex {
   int n_exac_by_ctime_sex[100][2];
   int n_exac_by_ctime_adi[100][5];
   int n_exac_severity_adi[4][5];
+  int n_exac_by_ctime_adi_diagnosed[100][5];
+  int n_exac_severity_adi_diagnosed[4][5];
+  int n_exac_GOLD_adi[4][5];
+  int n_exac_GOLD_adi_diagnosed[4][5];
 #endif
 
 #if (OUTPUT_EX & OUTPUT_EX_GPSYMPTOMS) > 0

@@ -719,6 +719,10 @@ void event_exacerbation_process(agent *ag)
     output_ex.n_exac_by_ctime_sex[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).sex]+=1;
     output_ex.n_exac_by_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=1;
     output_ex.n_exac_severity_adi[(*ag).exac_status-1][(*ag).adi_quintile-1]+=1;
+    if((*ag).diagnosis==1) output_ex.n_exac_by_ctime_adi_diagnosed[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=1;
+    if((*ag).diagnosis==1) output_ex.n_exac_severity_adi_diagnosed[(*ag).exac_status-1][(*ag).adi_quintile-1]+=1;
+    output_ex.n_exac_GOLD_adi[(*ag).gold-1][(*ag).adi_quintile-1]+=1;
+    if((*ag).diagnosis==1) output_ex.n_exac_GOLD_adi_diagnosed[(*ag).gold-1][(*ag).adi_quintile-1]+=1;
 
   #endif
 
