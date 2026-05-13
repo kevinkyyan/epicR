@@ -595,15 +595,7 @@ void event_exacerbation_process(agent *ag)
   p2=1/(1+exp(-l2))-1/(1+exp(-l1));
   p3=1/(1+exp(-l3))-1/(1+exp(-l2));
 
-  double p4          = 1.0 - p1 - p2 - p3;
-  double adi_sev_rr  = input.exacerbation.adi_exac_sev_rr_norm[(*ag).adi_quintile-1];
-  double p3_adj      = p3 * adi_sev_rr;
-  double p4_adj      = p4 * adi_sev_rr;
-  double p1_p2_adj   = 1.0 - p3_adj - p4_adj;
-  double scale       = p1_p2_adj / (p1 + p2);
-  p1 *= scale;
-  p2 *= scale;
-  p3  = p3_adj;
+  double p4 = 1.0 - p1 - p2 - p3;
 
   double r=rand_unif();
 

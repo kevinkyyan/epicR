@@ -223,7 +223,6 @@ struct input {
     double p_death[4];
     double logit_p_death_by_sex[7][2];
     double adi_exac_rr_norm[5];
-    double adi_exac_sev_rr_norm[5];
   } exacerbation;
 
   struct {

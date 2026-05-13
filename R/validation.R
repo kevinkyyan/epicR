@@ -2965,12 +2965,11 @@ validate_adi <- function(n_sim = 1e6) {
   copd_w   <- p_adi * inp_vals$COPD$adi_prev_COPD_rr_norm
 
   norm_check <- data.frame(
-    module  = c("COPD prevalence", "COPD incidence", "Exac rate", "Exac severity"),
+    module  = c("COPD prevalence", "COPD incidence", "Exac rate"),
     wt_mean = round(c(
       sum(p_adi  * inp_vals$COPD$adi_prev_COPD_rr_norm),
       sum(p_adi  * inp_vals$COPD$adi_inc_COPD_rr_norm),
-      sum(copd_w * inp_vals$exacerbation$adi_exac_rr_norm),
-      sum(copd_w * inp_vals$exacerbation$adi_exac_sev_rr_norm)
+      sum(copd_w * inp_vals$exacerbation$adi_exac_rr_norm)
     ), 6)
   )
   message("\nNormalization check (weighted mean should = 1.0):")
@@ -2983,24 +2982,21 @@ validate_adi <- function(n_sim = 1e6) {
   severe_total  <- colSums(sev_matrix[3:4, , drop = FALSE])
   exac_rate_adi <- exac_total / copd_yrs
   sev_rate_adi  <- severe_total / copd_yrs
-  cond_sev_adi  <- severe_total / exac_total
 
   grad_check <- data.frame(
     quintile       = quintile_labels,
     exac_IRR_vs_Q1 = round(exac_rate_adi / exac_rate_adi[1], 3),
-    sev_IRR_vs_Q1  = round(sev_rate_adi  / sev_rate_adi[1],  3),
-    cond_IRR_vs_Q1 = round(cond_sev_adi  / cond_sev_adi[1],  3)
+    sev_IRR_vs_Q1  = round(sev_rate_adi  / sev_rate_adi[1],  3)
   )
-  message("\nExacerbation gradient check (Q5/Q1 targets: exac rate=1.56, severe=2.02, conditional=1.295):")
+  message("\nExacerbation gradient check (Q5/Q1 targets: exac rate=1.56, severe=2.02):")
   print(grad_check, row.names = FALSE)
 
   # ---- Calibration check: ADI vs no-ADI ----
   message("\nRunning no-ADI baseline (n_sim = ", n_sim, ") ...")
   inp_no_adi <- inp_vals
-  inp_no_adi$COPD$adi_prev_COPD_rr_norm          <- rep(1, 5)
-  inp_no_adi$COPD$adi_inc_COPD_rr_norm           <- rep(1, 5)
-  inp_no_adi$exacerbation$adi_exac_rr_norm       <- rep(1, 5)
-  inp_no_adi$exacerbation$adi_exac_sev_rr_norm   <- rep(1, 5)
+  inp_no_adi$COPD$adi_prev_COPD_rr_norm    <- rep(1, 5)
+  inp_no_adi$COPD$adi_inc_COPD_rr_norm     <- rep(1, 5)
+  inp_no_adi$exacerbation$adi_exac_rr_norm <- rep(1, 5)
 
   res_base <- simulate(input = inp_no_adi, n_agents = n_sim,
                        time_horizon = 45, extended_results = TRUE)

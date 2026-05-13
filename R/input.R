@@ -436,11 +436,6 @@ get_input <- function(age0 = 40,
     input$COPD$adi_prev_COPD_rr_norm
   input$exacerbation$adi_exac_rr_norm <- adi_exac_rr / sum(copd_adi_weights * adi_exac_rr)
 
-  # ADI exacerbation severity multipliers (Galiatsatos 2020: severe IRR Q5/Q1 = 2.02/1.56 = 1.295)
-  # Conditional RR applied to severe + very severe (levels 3+4) only
-  adi_exac_sev_rr <- exp(log(2.02 / 1.56) / (100 - 20) * (c(20, 40, 60, 80, 100) - 20))
-  input$exacerbation$adi_exac_sev_rr_norm <- adi_exac_sev_rr / sum(copd_adi_weights * adi_exac_sev_rr)
-
   ## Symptoms;
 
   # cough;
