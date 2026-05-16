@@ -340,6 +340,7 @@ struct agent {
   double cumul_cost;
   double cumul_cost_prev_yr;
   double cumul_qaly;
+  double cumul_qaly_prev_yr;
 
   double payoffs_LPT;
 
@@ -404,6 +405,8 @@ struct output_ex {
   int n_alive_by_ctime_age[1000][111];
   int n_current_smoker_by_ctime_sex[1000][2];
   double annual_cost_ctime[1000];
+  double annual_cost_by_ctime_adi[1000][5];
+  double annual_qaly_by_ctime_adi[1000][5];
   double cumul_cost_ctime[1000];
   double cumul_cost_gold_ctime[1000][5];
   double cumul_qaly_ctime[1000];

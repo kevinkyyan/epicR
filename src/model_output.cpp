@@ -90,7 +90,9 @@ List get_output_ex()
     Rcpp::Named("n_alive_by_ctime_adi")=AS_MATRIX_INT_SIZE(output_ex.n_alive_by_ctime_adi,input.global_parameters.time_horizon),
     Rcpp::Named("n_COPD_by_ctime_adi")=AS_MATRIX_INT_SIZE(output_ex.n_COPD_by_ctime_adi,input.global_parameters.time_horizon),
     Rcpp::Named("cumul_cost_by_ctime_adi")=AS_MATRIX_DOUBLE_SIZE(output_ex.cumul_cost_by_ctime_adi,input.global_parameters.time_horizon),
-    Rcpp::Named("cumul_qaly_by_ctime_adi")=AS_MATRIX_DOUBLE_SIZE(output_ex.cumul_qaly_by_ctime_adi,input.global_parameters.time_horizon)
+    Rcpp::Named("cumul_qaly_by_ctime_adi")=AS_MATRIX_DOUBLE_SIZE(output_ex.cumul_qaly_by_ctime_adi,input.global_parameters.time_horizon),
+    Rcpp::Named("annual_cost_by_ctime_adi")=AS_MATRIX_DOUBLE_SIZE(output_ex.annual_cost_by_ctime_adi,input.global_parameters.time_horizon),
+    Rcpp::Named("annual_qaly_by_ctime_adi")=AS_MATRIX_DOUBLE_SIZE(output_ex.annual_qaly_by_ctime_adi,input.global_parameters.time_horizon)
 #endif
 #if (OUTPUT_EX & OUTPUT_EX_BIOMETRICS) > 0
   ,Rcpp::Named("sum_weight_by_ctime_sex")=AS_MATRIX_DOUBLE_SIZE(output_ex.sum_weight_by_ctime_sex,input.global_parameters.time_horizon)
@@ -170,7 +172,10 @@ void update_output_ex(agent *ag)
   int local_time=floor((*ag).local_time);
 
     output_ex.annual_cost_ctime[time]+=(*ag).cumul_cost-(*ag).cumul_cost_prev_yr;
+    output_ex.annual_cost_by_ctime_adi[time][(*ag).adi_quintile-1]+=(*ag).cumul_cost-(*ag).cumul_cost_prev_yr;
     (*ag).cumul_cost_prev_yr=(*ag).cumul_cost;
+    output_ex.annual_qaly_by_ctime_adi[time][(*ag).adi_quintile-1]+=(*ag).cumul_qaly-(*ag).cumul_qaly_prev_yr;
+    (*ag).cumul_qaly_prev_yr=(*ag).cumul_qaly;
 
 
   //if(time>=(*ag).time_at_creation)

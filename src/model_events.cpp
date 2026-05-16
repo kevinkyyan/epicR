@@ -742,8 +742,11 @@ void event_exacerbation_end_process(agent *ag)
 {
   (*ag).cumul_cost+=(input.cost.exac_dcost[(*ag).exac_status-1]/pow(1+input.global_parameters.discount_cost,(*ag).time_at_creation+(*ag).local_time-1));
   output_ex.annual_cost_ctime[(int)floor((*ag).time_at_creation+(*ag).local_time)]+=(*ag).cumul_cost-(*ag).cumul_cost_prev_yr;
+  output_ex.annual_cost_by_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=(*ag).cumul_cost-(*ag).cumul_cost_prev_yr;
   (*ag).cumul_cost_prev_yr=(*ag).cumul_cost;
   (*ag).cumul_qaly+=(input.utility.exac_dutil[(*ag).exac_status-1][(*ag).gold-1]/pow(1+input.global_parameters.discount_qaly,(*ag).time_at_creation+(*ag).local_time-1));
+  output_ex.annual_qaly_by_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=(*ag).cumul_qaly-(*ag).cumul_qaly_prev_yr;
+  (*ag).cumul_qaly_prev_yr=(*ag).cumul_qaly;
   (*ag).exac_status=0;
 }
 
