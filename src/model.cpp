@@ -467,12 +467,14 @@ void payoffs_LPT(agent *ag)
 
   output_ex.annual_cost_ctime[(int)floor((*ag).time_at_creation+(*ag).local_time)]+=(*ag).cumul_cost-(*ag).cumul_cost_prev_yr;
   output_ex.annual_cost_by_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=(*ag).cumul_cost-(*ag).cumul_cost_prev_yr;
+  if((*ag).gold>0) output_ex.annual_cost_by_copd_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=(*ag).cumul_cost-(*ag).cumul_cost_prev_yr;
   (*ag).cumul_cost_prev_yr=(*ag).cumul_cost;
 
   output_ex.cumul_time_by_ctime_GOLD[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).gold]+=((*ag).local_time-(*ag).medication_LPT);
 
   (*ag).cumul_qaly+=input.utility.bg_util_by_stage[(*ag).gold]*((*ag).local_time-(*ag).payoffs_LPT)/pow(1+input.global_parameters.discount_qaly,(*ag).local_time+calendar_time);
   output_ex.annual_qaly_by_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=(*ag).cumul_qaly-(*ag).cumul_qaly_prev_yr;
+  if((*ag).gold>0) output_ex.annual_qaly_by_copd_ctime_adi[(int)floor((*ag).time_at_creation+(*ag).local_time)][(*ag).adi_quintile-1]+=(*ag).cumul_qaly-(*ag).cumul_qaly_prev_yr;
   (*ag).cumul_qaly_prev_yr=(*ag).cumul_qaly;
 
   (*ag).payoffs_LPT=(*ag).local_time;

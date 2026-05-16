@@ -407,6 +407,8 @@ struct output_ex {
   double annual_cost_ctime[1000];
   double annual_cost_by_ctime_adi[1000][5];
   double annual_qaly_by_ctime_adi[1000][5];
+  double annual_cost_by_copd_ctime_adi[1000][5];
+  double annual_qaly_by_copd_ctime_adi[1000][5];
   double cumul_cost_ctime[1000];
   double cumul_cost_gold_ctime[1000][5];
   double cumul_qaly_ctime[1000];
