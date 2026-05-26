@@ -159,12 +159,12 @@
       "ref": "Adapted to US setting (July 22, 2025). CanCold - Shahzad's Derivation."
     },
     "ln_h_COPD_betas_by_sex": {
-      "male": [-7.62659032, 0.03116591, 0, 0.0276946, 0, 0, 0],
-      "female": [-8.39537000, 0.03608233, 0, 0.04033863, 0, 0, 0]
+      "male": [-7.781138, 0.02861788, 0, 0.03359496, 0, 0, 0],
+      "female": [-8.123129, 0.03416165, 0, 0.041683, 0, 0, 0]
     },
     "ln_h_COPD_betas_by_sex_metadata": {
       "help": "Log-hazard of developing COPD (FEV1/FVC<LLN) for those who did not have COPD at creation time (separately by sex)",
-      "ref": "Amin's Iterative solution. Last Updated on 2022-06-33 (0.29.0)"
+      "ref": "Amin's Iterative solution. Calibrated for US jurisdiction on 2026-05-26 using calibrate_COPD_inc(jurisdiction='us', nIterations=100)"
     },
     "adi_prev_COPD_rr": [1.0, 1.0, 1.2, 1.6, 2.4],
     "adi_prev_COPD_rr_metadata": {
