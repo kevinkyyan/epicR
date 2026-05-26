@@ -239,24 +239,24 @@ calibrate_COPD_inc<-function(nIterations=100,
   iteration_resid <- readr::read_csv(resid_file)
 
 
-  plot(ggplot2::qplot(iteration, age_coeff_men, data=iteration_coeff, size=I(1), main = "Age Coefficient Convergence for Men"))
-  plot(ggplot2::qplot(iteration, age_coeff_women, data=iteration_coeff, size=I(1), main = "Age Coefficient Convergence for Women"))
+  plot(ggplot2::ggplot(iteration_coeff, ggplot2::aes(iteration, age_coeff_men)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Age Coefficient Convergence for Men"))
+  plot(ggplot2::ggplot(iteration_coeff, ggplot2::aes(iteration, age_coeff_women)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Age Coefficient Convergence for Women"))
 
-  plot(ggplot2::qplot(iteration, packyears_coeff_men, data=iteration_coeff, size=I(1), main = "Smoking (packyears) Coefficient Convergence for Men"))
-  plot(ggplot2::qplot(iteration, packyears_coeff_women, data=iteration_coeff, size=I(1), main = "Smoking (packyears) Coefficient Convergence for women"))
+  plot(ggplot2::ggplot(iteration_coeff, ggplot2::aes(iteration, packyears_coeff_men)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Smoking (packyears) Coefficient Convergence for Men"))
+  plot(ggplot2::ggplot(iteration_coeff, ggplot2::aes(iteration, packyears_coeff_women)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Smoking (packyears) Coefficient Convergence for women"))
 
-  plot(ggplot2::qplot(iteration, intercept_men, data=iteration_coeff, size=I(1), main = "Logit intercept Convergence for Men"))
-  plot(ggplot2::qplot(iteration, intercept_women, data=iteration_coeff, size=I(1), main = "Logit intercept Convergence for women"))
+  plot(ggplot2::ggplot(iteration_coeff, ggplot2::aes(iteration, intercept_men)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Logit intercept Convergence for Men"))
+  plot(ggplot2::ggplot(iteration_coeff, ggplot2::aes(iteration, intercept_women)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Logit intercept Convergence for women"))
 
 
-  plot(ggplot2::qplot(iteration, resid_age_coeff_men, data=iteration_resid, size=I(1), main = "Residue for Age Coefficient - Men"))
-  plot(ggplot2::qplot(iteration, resid_age_coeff_women, data=iteration_resid, size=I(1), main = "Residue for Age Coefficient - Women"))
+  plot(ggplot2::ggplot(iteration_resid, ggplot2::aes(iteration, resid_age_coeff_men)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Residue for Age Coefficient - Men"))
+  plot(ggplot2::ggplot(iteration_resid, ggplot2::aes(iteration, resid_age_coeff_women)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Residue for Age Coefficient - Women"))
 
-  plot(ggplot2::qplot(iteration, resid_packyears_coeff_men, data=iteration_resid, size=I(1),  main = "Residue for Cigarette Smoking (packyears) Coefficient - Men"))
-  plot(ggplot2::qplot(iteration, resid_packyears_coeff_women, data=iteration_resid, size=I(1),  main = "Residue for Cigarette Smoking (packyears) Coefficient - Women"))
+  plot(ggplot2::ggplot(iteration_resid, ggplot2::aes(iteration, resid_packyears_coeff_men)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Residue for Cigarette Smoking (packyears) Coefficient - Men"))
+  plot(ggplot2::ggplot(iteration_resid, ggplot2::aes(iteration, resid_packyears_coeff_women)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Residue for Cigarette Smoking (packyears) Coefficient - Women"))
 
-  plot(ggplot2::qplot(iteration, resid_intercept_men, data=iteration_resid, size=I(1),  main = "Residue for logit intercept - Men"))
-  plot(ggplot2::qplot(iteration, resid_intercept_women, data=iteration_resid, size=I(1),  main = "Residue for logit intercept - Women"))
+  plot(ggplot2::ggplot(iteration_resid, ggplot2::aes(iteration, resid_intercept_men)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Residue for logit intercept - Men"))
+  plot(ggplot2::ggplot(iteration_resid, ggplot2::aes(iteration, resid_intercept_women)) + ggplot2::geom_point(size=1) + ggplot2::ggtitle("Residue for logit intercept - Women"))
 
   res_male<-glm(data=dataF[which(dataF[,'female']==0),],formula=copd~age+pack_years+year,family=binomial(link=logit))
   res_female<-glm(data=dataF[which(dataF[,'female']==1),],formula=copd~age+pack_years+year,family=binomial(link=logit))
