@@ -155,7 +155,8 @@ calibrate_smoking <- function() {
 calibrate_COPD_inc<-function(nIterations=100,
                            nPatients=100000,
                            time_horizon=20,
-                           output_dir=tempdir())
+                           output_dir=tempdir(),
+                           jurisdiction="canada")
 {
 
   latest_COPD_inc_logit <- cbind(
@@ -179,7 +180,7 @@ calibrate_COPD_inc<-function(nIterations=100,
     settings$agent_stack_size<-0
     settings$n_base_agents<- nPatients
     settings$event_stack_size <- 1e+06 * 1.7 * 20
-    init_session(settings=settings)
+    init_session(settings=settings, jurisdiction=jurisdiction)
     input<-model_input$values
 
     #  input$smoking$mortality_factor_current <- 1 #checking to see if these two values are throwing off the regression
