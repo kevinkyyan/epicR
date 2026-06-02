@@ -427,14 +427,14 @@ get_input <- function(age0 = 40,
   input$exacerbation$logit_p_death_by_sex <- create_matrix_from_config(config$exacerbation$logit_p_death_by_sex, transpose = FALSE)
   input_ref$exacerbation$logit_p_death_by_sex <- get_metadata("exacerbation", "logit_p_death_by_sex", "ref", "")
 
-  # ADI exacerbation multipliers (Galiatsatos 2020, Table 2: Q5/Q1 IRR = 1.56)
-  # ADI national rank 0-100; quintile upper bounds 20,40,60,80,100; log-linear slope anchored to Q5/Q1
-  # Normalise by COPD population ADI distribution
-  adi_exac_beta <- log(1.56) / (100 - 20)
-  adi_exac_rr  <- exp(adi_exac_beta * (c(20, 40, 60, 80, 100) - 20))
+  input_help$exacerbation$adi_exac_rr_norm <- get_metadata("exacerbation", "adi_exac_rr", "help", "Mean-centred exacerbation rate multipliers by ADI quintile. Derived from adi_exac_rr normalised by COPD population ADI distribution.")
   copd_adi_weights <- input$agent$p_adi_quintiles *
     input$COPD$adi_prev_COPD_rr_norm
+  adi_exac_rr <- if (!is.null(config$exacerbation$adi_exac_rr)) {
+    convert_config_value(config$exacerbation$adi_exac_rr)
+  } else rep(1.0, 5)
   input$exacerbation$adi_exac_rr_norm <- adi_exac_rr / sum(copd_adi_weights * adi_exac_rr)
+  input_ref$exacerbation$adi_exac_rr_norm <- get_metadata("exacerbation", "adi_exac_rr", "ref", "Galiatsatos et al. 2020 (Table 2): Q5/Q1 IRR = 1.56. Log-linear model; slope = log(1.56)/80.")
 
   ## Symptoms;
 
